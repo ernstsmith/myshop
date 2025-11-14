@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Граффити Магазин</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Граффити Магазин</h1>
+        <p>Эксклюзивные футболки с принтом ручной работы</p>
+    </header>
+
+    <main>
+        <section class="products">
+            {% if products %}
+                {% for product in products %}
+                <div class="product-card">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                    {% else %}
+                    <img src="{% static 'images/placeholder.png' %}" alt="Нет изображения">
+                    {% endif %}
+                    <h2>{{ product.title }}</h2>
+                    <p>{{ product.description }}</p>
+                    <span class="price">{{ product.price }} ₽</span>
+                    <button class="buy-btn">Купить</button>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-products">Товары отсутствуют.</p>
+            {% endif %}
+        </section>
+    </main>
+    <script src="{% static 'js/main.js' %}"></script>
+
+</body>
+</html>

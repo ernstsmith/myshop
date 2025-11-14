@@ -1,0 +1,42 @@
+# Виртуальное окружение
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite база данных
+db.sqlite3
+
+# Миграции, если они временные (по желанию)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Логи
+*.log
+
+# Медиа-файлы (загруженные пользователем)
+media/
+
+# Статика, собранная collectstatic
+staticfiles/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Системные файлы Windows
+Thumbs.db
+desktop.ini
+
+# Кэш
+*.cache
+
+# Django stuff
+*.pot
+*.mo
