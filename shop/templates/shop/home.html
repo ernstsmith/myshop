@@ -26,7 +26,7 @@
                     <h2>{{ product.title }}</h2>
                     <p>{{ product.description }}</p>
                     <span class="price">{{ product.price }} ₽</span>
-                    <button class="buy-btn">Купить</button>
+                    <a href="{% url 'add_to_cart' product.id %}" class="buy-btn">Купить</a>
                 </div>
                 {% endfor %}
             {% else %}
