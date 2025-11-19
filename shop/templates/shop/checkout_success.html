@@ -1,0 +1,6 @@
+{% extends "shop/base.html" %}
+{% block content %}
+<h2>Спасибо за заказ!</h2>
+<p>Номер заказа: {{ order.id }}</p>
+<p>Сумма: {{ order.total_amount }} ₽</p>
+{% endblock %}

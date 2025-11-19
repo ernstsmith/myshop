@@ -1,0 +1,16 @@
+{% extends "shop/base.html" %}
+{% block content %}
+<h2>Оформление заказа</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Telegram ID: <input type="text" name="telegram_user_id"></label>
+    <h3>Ваши товары:</h3>
+    <ul>
+    {% for item in products %}
+        <li>{{ item.product.title }} — {{ item.quantity }} x {{ item.product.price }} = {{ item.subtotal }} ₽</li>
+    {% endfor %}
+    </ul>
+    <p>Итого: {{ total }} ₽</p>
+    <button type="submit">Подтвердить заказ</button>
+</form>
+{% endblock %}
