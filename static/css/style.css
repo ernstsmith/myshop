@@ -33,6 +33,33 @@ header p {
     padding: 2rem;
 }
 
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: top 0.3s; /* плавная анимация */
+    z-index: 1000; /* чтобы был поверх контента */
+}
+
+.navbar-collapse {
+    transition: height 0.3s ease;
+}
+
+nav.navbar {
+    transition: transform 0.3s ease-in-out;
+    z-index: 1030; /* поверх всего */
+}
+
+
+.navbar.fixed-top {
+    transition: top 0.3s ease;
+    top: 0;
+    position: fixed;
+    width: 100%;
+    z-index: 1030;
+}
+
 /* Карточка товара */
 .product-card {
     background: #fff;
