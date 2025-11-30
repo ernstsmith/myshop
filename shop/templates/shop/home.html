@@ -36,11 +36,36 @@
 </section>
 
 <!-- ====================== GALLERY ====================== -->
-<section id="gallery-section" class="py-5 bg-light">
+<section id="gallery-section" class="container my-5">
     <h2 class="text-center mb-4">Галерея</h2>
-    <div class="row g-4 justify-content-center">
-        <div class="col-12 col-md-4"><img src="{% static 'img/gallery1.jpg' %}" class="img-fluid rounded" alt="Фото 1"></div>
-        <div class="col-12 col-md-4"><img src="{% static 'img/gallery2.jpg' %}" class="img-fluid rounded" alt="Фото 2"></div>
+
+    <div class="swiper gallery-swiper">
+        <div class="swiper-wrapper">
+
+            <div class="swiper-slide">
+                <img src="{% static 'gallery/img1.jpg' %}" class="img-fluid rounded">
+            </div>
+
+            <div class="swiper-slide">
+                <img src="{% static 'gallery/img2.jpg' %}" class="img-fluid rounded">
+            </div>
+
+            <div class="swiper-slide">
+                <img src="{% static 'gallery/img3.jpg' %}" class="img-fluid rounded">
+            </div>
+
+            <div class="swiper-slide">
+                <img src="{% static 'gallery/img4.jpg' %}" class="img-fluid rounded">
+            </div>
+
+        </div>
+
+        <!-- Навигация -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+
+        <!-- Пагинация -->
+        <div class="swiper-pagination"></div>
     </div>
 </section>
 

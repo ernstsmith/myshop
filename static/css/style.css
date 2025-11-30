@@ -23,6 +23,58 @@ header p {
     font-size: 1.1rem;
     color: #ddd;
 }
+/* ======= FULLSCREEN HERO ======= */
+.hero-header {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: url("/static/images/banner_001.jpg") center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 80px; /* чтобы navbar не наезжал */
+}
+
+/* ======= NEON NAVBAR ======= */
+.neon-navbar {
+    background: rgba(0, 0, 0, 0.15) !important;
+    backdrop-filter: blur(6px);
+    border-radius: 16px;
+    margin: 12px;
+    border: 2px solid rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
+                0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+/* Цвет текста + свечение */
+.text-glow {
+    color: #00ffff !important;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+}
+
+/* Поведение ссылок */
+.navbar-nav .nav-link:hover {
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.7);
+}
+
+/* ======= HERO TEXT ======= */
+.hero-content {
+    text-align: center;
+    color: white;
+    text-shadow: 0 0 6px black;
+    margin-bottom: 100px;
+}
+
+.hero-content h1 {
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.5rem;
+}
 
 /* Секция товаров */
 .products {
@@ -59,6 +111,19 @@ nav.navbar {
     width: 100%;
     z-index: 1030;
 }
+
+/* Центрирование navbar на мобильных */
+@media (max-width: 768px) {
+    .navbar-nav {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center;
+    }
+    .navbar-nav .nav-link {
+        padding: 8px 0;
+    }
+}
+
 
 /* Карточка товара */
 .product-card {
@@ -105,6 +170,21 @@ nav.navbar {
     padding: 0 0.8rem;
     flex-grow: 1;
 }
+
+/* Мобильные 4 карточки в ряд */
+@media (max-width: 576px) {
+    .products-grid .col-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    .product-card {
+        padding: 4px;
+    }
+    .product-card img {
+        width: 100%;
+    }
+}
+
 
 .price {
     font-weight: bold;
@@ -229,4 +309,17 @@ nav.navbar {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+
+.gallery-swiper {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.gallery-swiper img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
 }
