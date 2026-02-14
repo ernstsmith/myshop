@@ -6,6 +6,13 @@ def home(request):
     products = Product.objects.filter(available=True)
     return render(request, 'shop/home.html', {'products': products})
 
+# shop/views.py
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'shop/product_detail.html', {'product': product})
+
+
 # Просмотр корзины
 def cart_view(request):
     cart = request.session.get('cart', {})
@@ -61,3 +68,10 @@ def checkout(request):
             products.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
             total += subtotal
         return render(request, 'shop/checkout.html', {'products': products, 'total': total})
+
+def products_page(request):
+    products = Product.objects.all()
+    return render(request, 'shop/products_page.html', {'products': products})
+
+def gallery(request):
+    return render(request, 'shop/gallery.html')
