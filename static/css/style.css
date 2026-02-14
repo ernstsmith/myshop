@@ -23,6 +23,58 @@ header p {
     font-size: 1.1rem;
     color: #ddd;
 }
+/* ======= FULLSCREEN HERO ======= */
+.hero-header {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 80px; /* чтобы navbar не наезжал */
+}
+
+/* ======= NEON NAVBAR ======= */
+.neon-navbar {
+    background: rgba(0, 0, 0, 0.15) !important;
+    backdrop-filter: blur(6px);
+    border-radius: 16px;
+    margin: 12px;
+    border: 2px solid rgba(0, 255, 255, 0.7);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
+                0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+/* Цвет текста + свечение */
+.text-glow {
+    color: #00ffff !important;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+}
+
+/* Поведение ссылок */
+.navbar-nav .nav-link:hover {
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.7);
+}
+
+/* ======= HERO TEXT ======= */
+.hero-content {
+    text-align: center;
+    color: white;
+    text-shadow: 0 0 6px black;
+    margin-bottom: 100px;
+}
+
+.hero-content h1 {
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.hero-content p {
+    font-size: 1.5rem;
+}
 
 /* Секция товаров */
 .products {
@@ -32,6 +84,46 @@ header p {
     gap: 1.5rem;
     padding: 2rem;
 }
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: top 0.3s; /* плавная анимация */
+    z-index: 1000; /* чтобы был поверх контента */
+}
+
+.navbar-collapse {
+    transition: height 0.3s ease;
+}
+
+nav.navbar {
+    transition: transform 0.3s ease-in-out;
+    z-index: 1030; /* поверх всего */
+}
+
+
+.navbar.fixed-top {
+    transition: top 0.3s ease;
+    top: 0;
+    position: fixed;
+    width: 100%;
+    z-index: 1030;
+}
+
+/* Центрирование navbar на мобильных */
+@media (max-width: 768px) {
+    .navbar-nav {
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center;
+    }
+    .navbar-nav .nav-link {
+        padding: 8px 0;
+    }
+}
+
 
 /* Карточка товара */
 .product-card {
@@ -78,6 +170,21 @@ header p {
     padding: 0 0.8rem;
     flex-grow: 1;
 }
+
+/* Мобильные 4 карточки в ряд */
+@media (max-width: 576px) {
+    .products-grid .col-3 {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+    .product-card {
+        padding: 4px;
+    }
+    .product-card img {
+        width: 100%;
+    }
+}
+
 
 .price {
     font-weight: bold;
@@ -133,4 +240,86 @@ header p {
 .product-card.visible .buy-btn {
     opacity: 1;
     transform: translateY(0);
+}
+/* Контейнер изображения для hover */
+.image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.image-container img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+/* Hover-эффект */
+.image-container:hover img {
+    transform: scale(1.05);
+    filter: brightness(70%);
+}
+
+/* Кнопка "Быстрый просмотр" */
+.quick-view {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(230,0,35,0.9);
+    color: #fff;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.image-container:hover .quick-view {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+/* Мелкие улучшения карточек */
+.product-card {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.6s ease;
+}
+.banner {
+    height: 55vh;
+    background: linear-gradient(
+                rgba(0,0,0,0.5),
+                rgba(0,0,0,0.5)
+              ),
+              url("/static/images/banner_001.jpg") center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+@keyframes metallic {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.gallery-swiper {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.gallery-swiper img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
 }
