@@ -3,6 +3,7 @@ body {
     font-family: 'Arial', sans-serif;
     background: #f5f5f5;
     margin: 0;
+    padding-top: 80px; /* или 100px, если меню высокое */
     padding: 0;
 }
 
@@ -323,3 +324,13 @@ nav.navbar {
     border-radius: 12px;
     display: block;
 }
+.gallery-hover {
+    transition: 0.4s;
+    position: relative;
+}
+
+.gallery-hover:hover {
+    filter: brightness(60%);
+    transform: scale(1.02);
+}
+
