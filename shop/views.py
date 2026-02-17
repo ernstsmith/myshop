@@ -1,10 +1,28 @@
+import os
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from shop.models import Product, Order, OrderItem
 
-# Главная страница с товарами
+# Главная страница с товарами + динамическая галерея
 def home(request):
     products = Product.objects.filter(available=True)
-    return render(request, 'shop/home.html', {'products': products})
+
+    # Папка gallery внутри static/
+    gallery_dir = os.path.join(settings.BASE_DIR, "static", "gallery")
+
+    if not os.path.exists(gallery_dir):
+        gallery_images = []
+    else:
+        gallery_images = [
+            f"gallery/{f}"
+            for f in os.listdir(gallery_dir)
+            if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+        ]
+
+    return render(request, 'shop/home.html', {
+        'products': products,
+        'gallery_images': gallery_images
+    })
 
 # shop/views.py
 
