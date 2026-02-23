@@ -1,0 +1,52 @@
+diff --git a/requirements.txt b/requirements.txt
+index e69de29..c3f9a7a 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -0,0 +1,6 @@
++Django>=4.2
++asgiref
++sqlparse
++djangorestframework
++django-cors-headers
++whitenoise
+diff --git a/myshop/settings.py b/myshop/settings.py
+index 1234567..89abcde 100644
+--- a/myshop/settings.py
++++ b/myshop/settings.py
+@@ -1,10 +1,18 @@
+-DEBUG = True
+-SECRET_KEY = 'your-hardcoded-secret'
++import os
++
++DEBUG = os.environ.get('DEBUG', 'False') == 'True'
++SECRET_KEY = os.environ.get('SECRET_KEY', 'replace-me-with-env-secret')
+diff --git a/myshop/settings.py b/myshop/settings.py
+@@ -20,7 +28,8 @@
+-MIDDLEWARE = [
+-    'django.middleware.security.SecurityMiddleware',
+-    'django.contrib.sessions.middleware.SessionMiddleware',
+-    'django.middleware.common.CommonMiddleware',
+-    'django.middleware.csrf.CsrfViewMiddleware',
+-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+-    'django.contrib.messages.middleware.MessageMiddleware',
+-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+-    'django.middleware.security.SecurityMiddleware',  # duplicate
+-    'whitenoise.middleware.WhiteNoiseMiddleware',
+-]
++MIDDLEWARE = [
++    'django.middleware.security.SecurityMiddleware',
++    'django.contrib.sessions.middleware.SessionMiddleware',
++    'django.middleware.common.CommonMiddleware',
++    'django.middleware.csrf.CsrfViewMiddleware',
++    'django.contrib.auth.middleware.AuthenticationMiddleware',
++    'django.contrib.messages.middleware.MessageMiddleware',
++    'django.middleware.clickjacking.XFrameOptionsMiddleware',
++    'whitenoise.middleware.WhiteNoiseMiddleware',
++]
+diff --git a/shop/templates/shop/gallery.html b/shop/templates/shop/gallery.html
++new file mode 100644
++index 0000000..1111111
++--- /dev/null
+++++ b/shop/templates/shop/gallery.html
++<h1>Gallery</h1>
++<p>Шаблон галереи создан автоматически для предотвращения ошибки TemplateDoesNotExist.</p>

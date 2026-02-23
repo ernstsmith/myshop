@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),     # админка
     path('', include('shop.urls')),      # все URL из приложения shop
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Чтобы отображались картинки из ImageField
 if settings.DEBUG:

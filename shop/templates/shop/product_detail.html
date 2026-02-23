@@ -1,9 +1,9 @@
-{% extends "shop/base.html" %}
+﻿{% extends "shop/base.html" %}
 
 {% block content %}
 <h2>{{ product.title }}</h2>
 <p>{{ product.description }}</p>
-<p>Цена: {{ product.price }} ₽</p>
+<p>Р¦РµРЅР°: {{ product.price }} в‚Ѕ</p>
 
-<a href="{% url 'add_to_cart' product.id %}">Добавить в корзину</a>
+<a href="{% url 'add_to_cart' product.id %}">Р”РѕР±Р°РІРёС‚СЊ РІ РєРѕСЂР·РёРЅСѓ</a>
 {% endblock %}
