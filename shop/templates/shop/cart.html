@@ -1,17 +1,17 @@
-{% extends "shop/base.html" %}
+﻿{% extends "shop/base.html" %}
 {% block content %}
-<h2>Ваша корзина</h2>
+<h2>Р’Р°С€Р° РєРѕСЂР·РёРЅР°</h2>
 {% if products %}
     <ul>
     {% for item in products %}
-        <li>{{ item.product.title }} — {{ item.quantity }} x {{ item.product.price }} = {{ item.subtotal }} ₽
-            <a href="{% url 'remove_from_cart' item.product.id %}">Удалить</a>
+        <li>{{ item.product.title }} вЂ” {{ item.quantity }} x {{ item.product.price }} = {{ item.subtotal }} в‚Ѕ
+            <a href="{% url 'remove_from_cart' item.product.id %}">РЈРґР°Р»РёС‚СЊ</a>
         </li>
     {% endfor %}
     </ul>
-    <p>Итого: {{ total }} ₽</p>
-    <a href="{% url 'checkout' %}">Оформить заказ</a>
+    <p>РС‚РѕРіРѕ: {{ total }} в‚Ѕ</p>
+    <a href="{% url 'checkout' %}">РћС„РѕСЂРјРёС‚СЊ Р·Р°РєР°Р·</a>
 {% else %}
-    <p>Корзина пуста</p>
+    <p>РљРѕСЂР·РёРЅР° РїСѓСЃС‚Р°</p>
 {% endif %}
 {% endblock %}
