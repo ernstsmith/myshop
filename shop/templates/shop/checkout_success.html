@@ -1,6 +1,12 @@
-﻿{% extends "shop/base.html" %}
+{% extends "shop/base.html" %}
 {% block content %}
-<h2>РЎРїР°СЃРёР±Рѕ Р·Р° Р·Р°РєР°Р·!</h2>
-<p>РќРѕРјРµСЂ Р·Р°РєР°Р·Р°: {{ order.id }}</p>
-<p>РЎСѓРјРјР°: {{ order.total_amount }} в‚Ѕ</p>
+<div class="container py-5 text-center">
+    <h2 class="fw-bold mb-3">Спасибо за заказ!</h2>
+    <p class="mb-1">Номер заказа: {{ order.id }}</p>
+    <p class="mb-4">Сумма: {{ order.total_amount }} ₽</p>
+
+    <a href="{% url 'home' %}" class="btn btn-neon">
+        Вернуться в магазин
+    </a>
+</div>
 {% endblock %}

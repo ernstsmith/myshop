@@ -2,6 +2,7 @@ import os
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from shop.models import Product, Order, OrderItem
+from shop.telegram_utils import send_telegram_message
 
 # Главная страница с товарами + динамическая галерея
 def home(request):
@@ -75,6 +76,21 @@ def checkout(request):
             total += subtotal
         order.total_amount = total
         order.save()
+
+        # Уведомление в Telegram
+        lines = [
+            f"Новый заказ #{order.id}",
+            f"Сумма: {order.total_amount} ₽",
+        ]
+        if order.telegram_user_id:
+            lines.append(f"Telegram: {order.telegram_user_id}")
+        lines.append("")
+        lines.append("Товары:")
+        for item in order.items.all():
+            lines.append(f"- {item.product.title} × {item.quantity} — {item.price} ₽")
+
+        send_telegram_message("\n".join(lines))
+
         request.session['cart'] = {}  # очищаем корзину
         return render(request, 'shop/checkout_success.html', {'order': order})
     else:

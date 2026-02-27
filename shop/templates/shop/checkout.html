@@ -1,16 +1,54 @@
-﻿{% extends "shop/base.html" %}
+{% extends "shop/base.html" %}
 {% block content %}
-<h2>РћС„РѕСЂРјР»РµРЅРёРµ Р·Р°РєР°Р·Р°</h2>
-<form method="post">
-    {% csrf_token %}
-    <label>Telegram ID: <input type="text" name="telegram_user_id"></label>
-    <h3>Р’Р°С€Рё С‚РѕРІР°СЂС‹:</h3>
-    <ul>
-    {% for item in products %}
-        <li>{{ item.product.title }} вЂ” {{ item.quantity }} x {{ item.product.price }} = {{ item.subtotal }} в‚Ѕ</li>
-    {% endfor %}
-    </ul>
-    <p>РС‚РѕРіРѕ: {{ total }} в‚Ѕ</p>
-    <button type="submit">РџРѕРґС‚РІРµСЂРґРёС‚СЊ Р·Р°РєР°Р·</button>
-</form>
+<div class="container py-4">
+    <h2 class="fw-bold mb-4 text-center">Оформление заказа</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="checkout-card p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="telegram_user_id" class="form-label">Telegram ID</label>
+                        <input type="text" class="form-control" id="telegram_user_id" name="telegram_user_id" placeholder="@username или ID">
+                    </div>
+
+                    <h3 class="h5 mt-4 mb-3">Ваши товары</h3>
+                    <div class="table-responsive">
+                        <table class="table align-middle cart-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Товар</th>
+                                    <th scope="col" class="text-center">Кол-во</th>
+                                    <th scope="col" class="text-end">Цена</th>
+                                    <th scope="col" class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in products %}
+                                <tr>
+                                    <td>{{ item.product.title }}</td>
+                                    <td class="text-center">{{ item.quantity }}</td>
+                                    <td class="text-end">{{ item.product.price }} ₽</td>
+                                    <td class="text-end">{{ item.subtotal }} ₽</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4">
+                        <p class="mb-3 mb-md-0 fs-5">
+                            Итого: <span class="fw-bold cart-total">{{ total }} ₽</span>
+                        </p>
+                        <button type="submit" class="btn btn-neon">
+                            Подтвердить заказ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,12 +1,15 @@
-﻿{% extends 'shop/base.html' %}
+{% extends 'shop/base.html' %}
 {% load static %}
 
-{% block title %}Р“Р»Р°РІРЅР°СЏ - Graffiti Shop{% endblock %}
+{% block title %}Street Wear - Graffiti Shop{% endblock %}
 
 {% block hero_banner %}
-<section class="banner d-flex align-items-center justify-content-center text-white mb-5"
-        style="min-height: 300px; background: url('{% static "images/banner_001.jpg" %}') center/cover no-repeat;">
-    <h1 class="display-4 fw-bold text-center">РЈРЅРёРєР°Р»СЊРЅС‹Рµ РїСЂРёРЅС‚С‹. РђРІС‚РѕСЂСЃРєРёР№ СЃС‚РёР»СЊ.</h1>
+<section class="banner d-flex align-items-center justify-content-center text-white mb-5">
+    <div class="hero-content">
+        <h1 class="display-4 fw-bold text-center">Одежда со вкусом</h1>
+        <p class="mt-3 lead">Streetwear, вдохновлённый граффити и городом.</p>
+        <a href="#products-section" class="btn btn-neon mt-4">Смотреть коллекцию</a>
+    </div>
 </section>
 {% endblock %}
 
@@ -17,20 +20,22 @@
     <div class="row g-4 justify-content-center">
         {% for product in products|slice:":3" %}
         <div class="col-12 col-md-4">
-            <div class="card h-100">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
-                {% else %}
-                    <img src="{% static 'images/test-img.jpg' %}" class="card-img-top">
-                {% endif %}
+            <div class="card h-100 product-card">
+                <div class="image-container">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                    {% else %}
+                        <img src="{% static 'images/test-img.jpg' %}" class="card-img-top" alt="{{ product.title }}">
+                    {% endif %}
+                </div>
 
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ product.title }}</h5>
-                    <p class="card-text">{{ product.description|default:"РћРїРёСЃР°РЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚" }}</p>
+                    <p class="card-text">{{ product.description|default:"Описание товара скоро появится" }}</p>
 
                     <div class="mt-auto d-flex justify-content-between align-items-center">
-                        <span class="fw-bold text-danger">{{ product.price }} в‚Ѕ</span>
-                        <a href="#" class="btn btn-danger btn-sm">РљСѓРїРёС‚СЊ</a>
+                        <span class="price mb-0">{{ product.price }} ₽</span>
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-neon btn-sm">В корзину</a>
                     </div>
                 </div>
             </div>
@@ -41,7 +46,7 @@
 
 <!-- ====================== GALLERY ====================== -->
 <section id="gallery-section" class="container my-5">
-    <h2 class="text-center mb-4">Р“Р°Р»РµСЂРµСЏ</h2>
+    <h2 class="text-center mb-4">Галерея работ</h2>
 
     <div class="swiper gallery-swiper">
        <div class="swiper-wrapper">

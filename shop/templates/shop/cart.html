@@ -1,17 +1,62 @@
-﻿{% extends "shop/base.html" %}
+{% extends "shop/base.html" %}
 {% block content %}
-<h2>Р’Р°С€Р° РєРѕСЂР·РёРЅР°</h2>
-{% if products %}
-    <ul>
-    {% for item in products %}
-        <li>{{ item.product.title }} вЂ” {{ item.quantity }} x {{ item.product.price }} = {{ item.subtotal }} в‚Ѕ
-            <a href="{% url 'remove_from_cart' item.product.id %}">РЈРґР°Р»РёС‚СЊ</a>
-        </li>
-    {% endfor %}
-    </ul>
-    <p>РС‚РѕРіРѕ: {{ total }} в‚Ѕ</p>
-    <a href="{% url 'checkout' %}">РћС„РѕСЂРјРёС‚СЊ Р·Р°РєР°Р·</a>
-{% else %}
-    <p>РљРѕСЂР·РёРЅР° РїСѓСЃС‚Р°</p>
-{% endif %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4 text-center">Ваша корзина</h2>
+
+    {% if products %}
+        <div class="cart-card p-4">
+            <div class="table-responsive">
+                <table class="table align-middle cart-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Товар</th>
+                            <th scope="col" class="text-center">Кол-во</th>
+                            <th scope="col" class="text-end">Цена</th>
+                            <th scope="col" class="text-end">Сумма</th>
+                            <th scope="col" class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in products %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}" class="rounded" style="width: 56px; height: 56px; object-fit: cover;">
+                                    {% endif %}
+                                    <span class="fw-semibold">{{ item.product.title }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">{{ item.product.price }} ₽</td>
+                            <td class="text-end">{{ item.subtotal }} ₽</td>
+                            <td class="text-end">
+                                <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-sm btn-outline-danger">
+                                    Удалить
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4">
+                <p class="mb-3 mb-md-0 fs-5">
+                    Итого: <span class="fw-bold cart-total">{{ total }} ₽</span>
+                </p>
+                <a href="{% url 'checkout' %}" class="btn btn-neon">
+                    Оформить заказ
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center">
+            <p class="mb-3">Корзина пуста</p>
+            <a href="{% url 'home' %}#products-section" class="btn btn-outline-neon">
+                Перейти к товарам
+            </a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
