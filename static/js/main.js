@@ -1,28 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // =========================
-    // 1️⃣ Плавное появление карточек при скролле
-    // =========================
-    const cards = document.querySelectorAll('.product-card');
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if(entry.isIntersecting){
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-    cards.forEach(card => observer.observe(card));
-
-    // =========================
-    // 2️⃣ Placeholder для изображений
+    // 1️⃣ Placeholder для изображений
     // =========================
     document.querySelectorAll('.product-card img').forEach(img => {
-        img.onerror = () => img.src = '/static/images/placeholder.png';
+        img.onerror = () => img.src = '/static/images/test-img.jpg';
     });
 
     // =========================
-    // 3️⃣ Анимация кнопки "Купить"
+    // 2️⃣ Анимация кнопки "Купить"
     // =========================
     document.querySelectorAll('.buy-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -34,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // =========================
-    // 4️⃣ Плавная прокрутка по якорям
+    // 3️⃣ Плавная прокрутка по якорям
     // =========================
     const links = document.querySelectorAll('a[href^="#"]');
     links.forEach(link => {
@@ -48,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // =========================
-    // 5️⃣ Закрытие меню Bootstrap после клика на ссылку
+    // 4️⃣ Закрытие меню Bootstrap после клика на ссылку
     // =========================
     document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
         link.addEventListener('click', () => {
@@ -57,25 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 new bootstrap.Collapse(navbarCollapse).hide();
             }
         });
-    });
-
-    // =========================
-    // 6️⃣ Скрытие/появление navbar при скролле
-    // =========================
-    const navbar = document.querySelector('nav.navbar');
-    let lastScrollTop = 0;
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-        if (scrollTop > lastScrollTop && scrollTop > 50) {
-            // Скроллим вниз — скрываем
-            navbar.style.transform = 'translateY(-100%)';
-        } else {
-            // Скроллим вверх — показываем
-            navbar.style.transform = 'translateY(0)';
-        }
-
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     });
 
 });
