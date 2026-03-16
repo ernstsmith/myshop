@@ -1,0 +1,165 @@
+(function () {
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  const CART_KEY = 'miniapp_cart_v1';
+  const FALLBACK_IMAGE = '/static/shop/images/tshirt.jpg';
+
+  const productsNode = document.getElementById('products');
+  const cartLinesNode = document.getElementById('cartLines');
+  const fallbackCheckoutBtn = document.getElementById('fallbackCheckout');
+
+  let products = [];
+  let cart = loadCart();
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  function loadCart() {
+    try {
+      const raw = localStorage.getItem(CART_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      console.warn('Failed to parse cart from localStorage', e);
+      return {};
+    }
+  }
+
+  function saveCart() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  function totalItems() {
+    return Object.values(cart).reduce((acc, item) => acc + item.quantity, 0);
+  }
+
+  function cartAsList() {
+    return Object.values(cart);
+  }
+
+  function updateMainButton() {
+    const count = totalItems();
+    if (!tg) {
+      fallbackCheckoutBtn.style.display = count > 0 ? 'block' : 'none';
+      return;
+    }
+
+    if (count > 0) {
+      tg.MainButton.setText(`Оформить заказ (${count})`);
+      tg.MainButton.show();
+    } else {
+      tg.MainButton.hide();
+    }
+  }
+
+  function renderCartSummary() {
+    const items = cartAsList();
+    if (items.length === 0) {
+      cartLinesNode.textContent = 'Пока пусто';
+      return;
+    }
+
+    cartLinesNode.innerHTML = items
+      .map((item) => `${item.title} x ${item.quantity}`)
+      .join('<br>');
+  }
+
+  function addToCart(product) {
+    const key = String(product.id);
+    if (!cart[key]) {
+      cart[key] = {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        quantity: 0,
+      };
+    }
+    cart[key].quantity += 1;
+
+    saveCart();
+    renderCartSummary();
+    updateMainButton();
+  }
+
+  function renderProducts() {
+    productsNode.innerHTML = '';
+
+    if (!products.length) {
+      productsNode.innerHTML = '<p>Товары не найдены</p>';
+      return;
+    }
+
+    products.forEach((product) => {
+      const imageSrc = product.image || FALLBACK_IMAGE;
+      const description = product.description || '';
+      const card = document.createElement('article');
+      card.className = 'mini-card';
+      card.innerHTML = `
+        <img src="${imageSrc}" alt="${product.title}">
+        <div class="mini-card-body">
+          <h3 class="mini-card-title">${product.title}</h3>
+          <p class="mini-card-desc">${description}</p>
+          <p class="mini-card-price">${product.price} ₽</p>
+          <button class="mini-btn" type="button">Добавить</button>
+        </div>
+      `;
+
+      const image = card.querySelector('img');
+      image.addEventListener('error', function () {
+        image.src = FALLBACK_IMAGE;
+      });
+
+      const button = card.querySelector('button');
+      button.addEventListener('click', function () {
+        addToCart(product);
+      });
+
+      productsNode.appendChild(card);
+    });
+  }
+
+  async function loadProducts() {
+    try {
+      const response = await fetch('/api/products/', { headers: { Accept: 'application/json' } });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      products = Array.isArray(data) ? data : (data.products || []);
+      renderProducts();
+    } catch (error) {
+      console.error('Failed to load products', error);
+      productsNode.innerHTML = '<p>Не удалось загрузить товары</p>';
+    }
+  }
+
+  function checkout() {
+    const items = cartAsList();
+    if (!items.length) {
+      return;
+    }
+
+    const payload = {
+      type: 'order',
+      items,
+      total_items: totalItems(),
+      ts: Date.now(),
+    };
+
+    if (tg) {
+      tg.sendData(JSON.stringify(payload));
+    } else {
+      console.warn('Telegram WebApp API недоступен, sendData skipped', payload);
+    }
+  }
+
+  if (tg) {
+    tg.MainButton.onClick(checkout);
+  }
+  fallbackCheckoutBtn.addEventListener('click', checkout);
+
+  renderCartSummary();
+  updateMainButton();
+  loadProducts();
+})();

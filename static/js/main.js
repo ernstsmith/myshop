@@ -1,3 +1,28 @@
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+tg.expand();
+
+console.log("Telegram user:", tg.initDataUnsafe?.user);
+
+const mainButton = tg.MainButton;
+
+mainButton.setText("Оформить заказ");
+mainButton.show();
+
+mainButton.onClick(function () {
+    alert("Заказ отправлен");
+});
+
+const mainButton = tg.MainButton;
+
+mainButton.setText("Оформить заказ");
+mainButton.show();
+
+mainButton.onClick(function () {
+    alert("Заказ отправлен");
+});
+
 document.addEventListener('DOMContentLoaded', function() {
 
     // =========================

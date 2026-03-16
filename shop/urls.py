@@ -9,6 +9,8 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),  # <-- добавлено
     path('products/', views.products_page, name='products_page'),
-    path('gallery/', views.gallery, name='gallery')
-
+    path('gallery/', views.gallery, name='gallery'),
+    path("miniapp/", views.miniapp, name="miniapp"),
+    path("api/order/", views.api_create_order, name="api_create_order"),
+    path("api/products/", views.api_products, name="api_products"),
 ]
