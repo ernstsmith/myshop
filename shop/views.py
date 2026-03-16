@@ -1,6 +1,10 @@
 import os
+import json
 from django.conf import settings
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from shop.models import Product, Order, OrderItem
 from shop.telegram_utils import send_telegram_message
 
@@ -109,3 +113,78 @@ def products_page(request):
 
 def gallery(request):
     return render(request, 'shop/gallery.html')
+
+def miniapp(request):
+    return render(request, "miniapp.html")
+
+
+@csrf_exempt
+@require_POST
+def api_create_order(request):
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"status": "error", "error": "Invalid JSON"}, status=400)
+
+    required_fields = ("user_id", "username", "product", "quantity")
+    missing_fields = [field for field in required_fields if field not in payload]
+    if missing_fields:
+        return JsonResponse(
+            {"status": "error", "error": f"Missing fields: {', '.join(missing_fields)}"},
+            status=400,
+        )
+
+    try:
+        user_id = int(payload["user_id"])
+        quantity = int(payload["quantity"])
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {"status": "error", "error": "user_id and quantity must be integers"},
+            status=400,
+        )
+
+    if quantity <= 0:
+        return JsonResponse({"status": "error", "error": "quantity must be > 0"}, status=400)
+
+    order = Order.objects.create(
+        user_id=user_id,
+        username=str(payload["username"]).strip(),
+        product=str(payload["product"]).strip(),
+        quantity=quantity,
+        total_amount=0,
+    )
+
+    return JsonResponse({"status": "ok", "order_id": order.id}, status=201)
+
+def api_products(request):
+    products = Product.objects.filter(available=True)
+    if not products.exists():
+        data = [
+            {
+                "id": "fallback-tshirt",
+                "title": "T-shirt",
+                "price": 199.0,
+                "image": "/static/shop/images/tshirt.jpg",
+                "description": "Sample T-shirt",
+            },
+            {
+                "id": "fallback-hoodie",
+                "title": "Hoodie",
+                "price": 299.0,
+                "image": "/static/shop/images/hoodie.jpg",
+                "description": "Sample Hoodie",
+            },
+        ]
+        return JsonResponse({"status": "ok", "products": data})
+
+    data = []
+    for product in products:
+        data.append({
+            "id": product.id,
+            "title": product.title,
+            "price": float(product.price),
+            "image": product.image.url if product.image else "",
+            "description": product.description,
+        })
+
+    return JsonResponse({"status": "ok", "products": data})

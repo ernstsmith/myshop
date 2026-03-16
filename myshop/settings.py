@@ -1,16 +1,38 @@
-from pathlib import Path
+﻿from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-dev-key-123456"
-)
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
-DEBUG = True
+DEBUG = env_bool("DEBUG", False)
 
-ALLOWED_HOSTS = []
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = "django-insecure-dev-key-123456"
+    else:
+        raise ValueError("SECRET_KEY is required when DEBUG=False")
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".ngrok-free.dev",
+]
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -19,7 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "shop",
+    "shop.apps.ShopConfig",
 ]
 
 MIDDLEWARE = [
@@ -37,7 +59,7 @@ ROOT_URLCONF = "myshop.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -53,28 +75,59 @@ TEMPLATES = [
 WSGI_APPLICATION = "myshop.wsgi.application"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'myshop_db',
-        'USER': 'postgres',
-        'PASSWORD': 'mikrospace',
-        'HOST': 'localhost',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c client_encoding=UTF8',
-        },
+    "default": {
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.environ.get("DB_NAME", "myshop_db" if DEBUG else ""),
+        "USER": os.environ.get("DB_USER", "postgres" if DEBUG else ""),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "mikrospace" if DEBUG else ""),
+        "HOST": os.environ.get("DB_HOST", "127.0.0.1" if DEBUG else ""),
+        "PORT": os.environ.get("DB_PORT", "5432" if DEBUG else ""),
     }
 }
 
-AUTH_PASSWORD_VALIDATORS = []
+if not DEBUG:
+    db_defaults = DATABASES["default"]
+    missing_db_fields = [
+        key for key, value in db_defaults.items()
+        if key in {"NAME", "USER", "PASSWORD", "HOST", "PORT"} and not value
+    ]
+    if missing_db_fields:
+        raise ValueError(
+            "Database settings missing: " + ", ".join(sorted(missing_db_fields))
+        )
+
+PASSWORD_VALIDATORS_ENABLED = env_bool("PASSWORD_VALIDATORS_ENABLED", not DEBUG)
+if PASSWORD_VALIDATORS_ENABLED:
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        },
+        {
+            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        },
+    ]
+else:
+    AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = "ru-ru"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+import os
+
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static"
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
@@ -82,3 +135,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Telegram Bot
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_CHAT_ID = os.environ.get("TELEGRAM_ADMIN_CHAT_ID", "")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok-free.dev",
+]
+
+X_FRAME_OPTIONS = os.environ.get(
+    "X_FRAME_OPTIONS",
+    "SAMEORIGIN" if DEBUG else "DENY",
+)

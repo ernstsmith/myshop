@@ -1,8 +1,23 @@
 import json
+import logging
 import urllib.parse
 import urllib.request
 
 from django.conf import settings
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+
+keyboard = [
+    [
+        InlineKeyboardButton(
+            "Открыть магазин",
+            web_app=WebAppInfo(url="https://xxxxx.ngrok-free.dev")
+        )
+    ]
+]
+
+reply_markup = InlineKeyboardMarkup(keyboard)
+
+logger = logging.getLogger(__name__)
 
 
 def send_telegram_message(text: str) -> None:
@@ -14,7 +29,15 @@ def send_telegram_message(text: str) -> None:
     token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
     chat_id = getattr(settings, "TELEGRAM_ADMIN_CHAT_ID", None)
 
-    if not token or not chat_id or not text:
+    if not text:
+        return
+
+    if not token or not chat_id:
+        logger.error(
+            "Telegram settings missing: TELEGRAM_BOT_TOKEN=%s TELEGRAM_ADMIN_CHAT_ID=%s",
+            "set" if token else "missing",
+            "set" if chat_id else "missing",
+        )
         return
 
     url = f"https://api.telegram.org/bot{token}/sendMessage"
@@ -35,3 +58,6 @@ def send_telegram_message(text: str) -> None:
         # не роняем оформление заказа, если Telegram недоступен
         return
 
+def get_telegram_user(request):
+    init_data = request.GET.get("initData")
+    return init_data
