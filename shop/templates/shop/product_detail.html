@@ -5,5 +5,8 @@
 <p>{{ product.description }}</p>
 <p>Цена: {{ product.price }} ₽</p>
 
-<a href="{% url 'add_to_cart' product.id %}">Добавить в корзину</a>
+<form method="post" action="{% url 'add_to_cart' product.id %}">
+    {% csrf_token %}
+    <button type="submit">Добавить в корзину</button>
+</form>
 {% endblock %}

@@ -31,9 +31,10 @@
                             <td class="text-end">{{ item.product.price }} ₽</td>
                             <td class="text-end">{{ item.subtotal }} ₽</td>
                             <td class="text-end">
-                                <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-sm btn-outline-danger">
-                                    Удалить
-                                </a>
+                                <form method="post" action="{% url 'remove_from_cart' item.product.id %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

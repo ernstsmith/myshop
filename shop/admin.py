@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Cart, CartItem, Order, OrderItem
+from .models import Product, Cart, CartItem, Order, OrderItem, TelegramUser
 
 
 @admin.register(Product)
@@ -17,8 +17,8 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'username',
-        'telegram_user_id',
+        'tg_username',
+        'tg_user_id',
         'total_amount',
         'status',
         'created_at'
@@ -31,3 +31,4 @@ class OrderAdmin(admin.ModelAdmin):
 
 admin.site.register(Cart)
 admin.site.register(CartItem)
+admin.site.register(TelegramUser)
