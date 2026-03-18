@@ -45,3 +45,26 @@ def send_order_notification(order):
         requests.post(url, json=data, timeout=5)
     except requests.RequestException:
         return
+
+
+def notify_order_status(order):
+    if not TOKEN:
+        return
+    telegram_user = order.telegram_user
+    if not telegram_user or not telegram_user.telegram_id:
+        return
+
+    text = (
+        f"Статус вашего заказа №{order.id} изменен: "
+        f"{order.get_status_display()}"
+    )
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    data = {
+        "chat_id": telegram_user.telegram_id,
+        "text": text,
+    }
+
+    try:
+        requests.post(url, json=data, timeout=5)
+    except requests.RequestException:
+        return

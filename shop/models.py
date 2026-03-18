@@ -82,15 +82,17 @@ class CartItem(models.Model):
 class Order(models.Model):
 
     STATUS_NEW = "new"
-    STATUS_CONFIRMED = "confirmed"
-    STATUS_SENT = "sent"
-    STATUS_CANCELED = "canceled"
+    STATUS_PROCESSING = "processing"
+    STATUS_SHIPPED = "shipped"
+    STATUS_DELIVERED = "delivered"
+    STATUS_CANCELLED = "cancelled"
 
     STATUS_CHOICES = [
         (STATUS_NEW, "Новый"),
-        (STATUS_CONFIRMED, "Подтвержден"),
-        (STATUS_SENT, "Отправлен"),
-        (STATUS_CANCELED, "Отменен"),
+        (STATUS_PROCESSING, "В обработке"),
+        (STATUS_SHIPPED, "Отправлен"),
+        (STATUS_DELIVERED, "Доставлен"),
+        (STATUS_CANCELLED, "Отменен"),
     ]
 
     created_at = models.DateTimeField(auto_now_add=True)

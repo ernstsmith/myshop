@@ -70,6 +70,13 @@ document.addEventListener("DOMContentLoaded", function() {
             🛒 Корзина
         </a>
     </li>
+    <li class="nav-item">
+        {% if telegram_user %}
+            <a class="nav-link text-glow" href="{% url 'profile' %}">Профиль</a>
+        {% else %}
+            <a class="nav-link text-glow" href="{% url 'login' %}">Вход</a>
+        {% endif %}
+    </li>
 </ul>
             </div>
         </div>

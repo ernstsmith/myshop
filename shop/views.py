@@ -12,8 +12,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
 from shop.models import Product, Order, OrderItem, TelegramUser, Cart, CartItem
 from shop.telegram_utils import verify_telegram_init_data
+from shop.telegram_notify import notify_order_status
 
 TELEGRAM_AUTH_MAX_AGE_SECONDS = 86400
 
@@ -217,6 +219,37 @@ def login(request):
             "telegram_auth_url": auth_url,
         },
     )
+
+
+def profile(request):
+    telegram_user = _get_session_telegram_user(request)
+    if not telegram_user:
+        return redirect("/login/")
+
+    orders = Order.objects.filter(telegram_user=telegram_user).order_by("-created_at")
+    return render(
+        request,
+        "shop/profile.html",
+        {"telegram_user": telegram_user, "orders": orders},
+    )
+
+
+@staff_member_required
+@require_POST
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    new_status = (request.POST.get("status") or "").strip()
+    allowed_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
+    if new_status not in allowed_statuses:
+        return HttpResponseBadRequest("Invalid status")
+
+    if order.status != new_status:
+        order.status = new_status
+        order.save(update_fields=["status"])
+        if order.telegram_user and order.telegram_user.telegram_id:
+            notify_order_status(order)
+
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @csrf_exempt

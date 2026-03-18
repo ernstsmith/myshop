@@ -253,11 +253,11 @@ async def handle_order_buttons(update: Update, context: ContextTypes.DEFAULT_TYP
         return
 
     if action == "confirm":
-        order.status = Order.STATUS_CONFIRMED
+        order.status = Order.STATUS_PROCESSING
     elif action == "cancel":
-        order.status = Order.STATUS_CANCELED
+        order.status = Order.STATUS_CANCELLED
     else:
-        order.status = Order.STATUS_SENT
+        order.status = Order.STATUS_SHIPPED
 
     order.save()
     await query.answer("Статус обновлен")
