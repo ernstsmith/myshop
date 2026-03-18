@@ -1,5 +1,6 @@
-﻿from pathlib import Path
+from pathlib import Path
 import os
+import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,19 +12,19 @@ def env_bool(name, default=False):
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
-DEBUG = env_bool("DEBUG", False)
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-if not SECRET_KEY:
-    if DEBUG:
-        SECRET_KEY = "django-insecure-dev-key-123456"
-    else:
-        raise ValueError("SECRET_KEY is required when DEBUG=False")
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-dev-key-123456")
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".ngrok-free.dev",
+]
+ALLOWED_HOSTS += [
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
+    if host.strip()
 ]
 
 if not DEBUG:
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -86,7 +88,10 @@ DATABASES = {
     }
 }
 
-if not DEBUG:
+if os.environ.get("DATABASE_URL"):
+    DATABASES["default"] = dj_database_url.parse(os.environ.get("DATABASE_URL"))
+
+if not DEBUG and not os.environ.get("DATABASE_URL"):
     db_defaults = DATABASES["default"]
     missing_db_fields = [
         key for key, value in db_defaults.items()
@@ -121,14 +126,13 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-import os
-
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
