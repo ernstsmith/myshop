@@ -1,6 +1,8 @@
 # Виртуальное окружение
 venv/
 env/
+.venv*
+.env
 
 # Python cache
 __pycache__/
