@@ -42,3 +42,6 @@ desktop.ini
 # Django stuff
 *.pot
 *.mo
+.venv_lnx/
+media/
+*.zip
