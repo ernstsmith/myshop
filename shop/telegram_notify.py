@@ -41,4 +41,7 @@ def send_order_notification(order):
         "reply_markup": keyboard
     }
 
-    requests.post(url, json=data)
+    try:
+        requests.post(url, json=data, timeout=5)
+    except requests.RequestException:
+        return

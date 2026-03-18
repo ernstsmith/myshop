@@ -16,6 +16,13 @@ class Product(models.Model):
 
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
+    telegram_user = models.ForeignKey(
+        "TelegramUser",
+        related_name="carts",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
     def get_total(self):
         return sum(
@@ -23,15 +30,16 @@ class Cart(models.Model):
             for item in self.items.all()
         )
 
-    def to_order(self, telegram_user_id=None, username=""):
+    def to_order(self, telegram_user=None, telegram_user_id=None, username=""):
         """
         Создаёт заказ на основе корзины
         """
         with transaction.atomic():
 
             order = Order.objects.create(
-                telegram_user_id=telegram_user_id,
-                username=username,
+                telegram_user=telegram_user,
+                tg_user_id=telegram_user_id,
+                tg_username=username,
                 total_amount=self.get_total(),
                 paid=False,
                 metadata={"cart_id": self.id}
@@ -87,8 +95,16 @@ class Order(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    telegram_user_id = models.CharField(max_length=64, blank=True, null=True)
-    username = models.CharField(max_length=150, blank=True, default="")
+    telegram_user = models.ForeignKey(
+        "TelegramUser",
+        related_name="orders",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    tg_user_id = models.CharField(max_length=64, blank=True, null=True)
+    tg_username = models.CharField(max_length=150, blank=True, default="")
 
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
@@ -134,3 +150,16 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.title} × {self.quantity}"
+
+
+class TelegramUser(models.Model):
+    telegram_id = models.CharField(max_length=64, unique=True)
+    username = models.CharField(max_length=150, blank=True, default="")
+    first_name = models.CharField(max_length=150, blank=True, default="")
+    last_name = models.CharField(max_length=150, blank=True, default="")
+    photo_url = models.URLField(blank=True, default="")
+    auth_date = models.DateTimeField()
+
+    def __str__(self):
+        display = self.username or f"{self.first_name} {self.last_name}".strip()
+        return display or f"TelegramUser {self.telegram_id}"

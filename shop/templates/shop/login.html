@@ -1,0 +1,31 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Вход через Telegram{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="mb-3">Вход через Telegram</h2>
+                <p class="text-muted">Нажмите кнопку ниже, чтобы войти через Telegram.</p>
+
+                {% if telegram_bot_username and telegram_auth_url %}
+                    <script
+                        async
+                        src="https://telegram.org/js/telegram-widget.js?22"
+                        data-telegram-login="{{ telegram_bot_username }}"
+                        data-size="large"
+                        data-auth-url="{{ telegram_auth_url }}"
+                        data-request-access="write">
+                    </script>
+                {% else %}
+                    <div class="alert alert-warning">
+                        Telegram Bot не настроен. Проверьте переменную TELEGRAM_BOT_USERNAME.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

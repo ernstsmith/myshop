@@ -142,8 +142,15 @@
 
     const payload = {
       type: 'order',
-      items,
+      items: items.map((item) => ({
+        id: item.id,
+        title: item.title,
+        quantity: item.quantity,
+      })),
       total_items: totalItems(),
+      telegram_user_id: tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null,
+      username: tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.username : '',
+      init_data: tg ? tg.initData : '',
       ts: Date.now(),
     };
 

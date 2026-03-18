@@ -1,5 +1,8 @@
+import hashlib
+import hmac
 import json
 import logging
+import time
 import urllib.parse
 import urllib.request
 
@@ -61,3 +64,48 @@ def send_telegram_message(text: str) -> None:
 def get_telegram_user(request):
     init_data = request.GET.get("initData")
     return init_data
+
+
+def verify_telegram_init_data(init_data: str, token: str, max_age_seconds: int = 86400) -> bool:
+    if not init_data or not token:
+        return False
+
+    try:
+        data = dict(urllib.parse.parse_qsl(init_data, keep_blank_values=True))
+    except ValueError:
+        return False
+
+    received_hash = data.pop("hash", None)
+    if not received_hash:
+        return False
+
+    data_check_string = "\n".join(
+        f"{key}={value}" for key, value in sorted(data.items())
+    )
+
+    secret_key = hmac.new(
+        b"WebAppData",
+        token.encode("utf-8"),
+        hashlib.sha256,
+    ).digest()
+
+    calculated_hash = hmac.new(
+        secret_key,
+        data_check_string.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(calculated_hash, received_hash):
+        return False
+
+    if max_age_seconds and "auth_date" in data:
+        try:
+            auth_date = int(data["auth_date"])
+        except (TypeError, ValueError):
+            return False
+
+        now = int(time.time())
+        if now - auth_date > max_age_seconds:
+            return False
+
+    return True

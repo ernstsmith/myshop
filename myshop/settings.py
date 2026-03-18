@@ -67,6 +67,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "shop.context_processors.telegram_user",
             ],
         },
     },
@@ -135,6 +136,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Telegram Bot
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_CHAT_ID = os.environ.get("TELEGRAM_ADMIN_CHAT_ID", "")
+TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "")
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.dev",

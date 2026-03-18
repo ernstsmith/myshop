@@ -168,40 +168,61 @@ async def handle_miniapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE
     if not telegram_username and update.effective_user:
         telegram_username = getattr(update.effective_user, "username", "") or ""
 
-    product = payload.get("product")
-    quantity = payload.get("quantity")
+    items = payload.get("items")
+    if not isinstance(items, list) or not items:
+        await update.message.reply_text("Получены некорректные данные из Mini App")
+        return
 
     try:
         telegram_user_id = int(telegram_user_id)
-        quantity = int(quantity)
     except (TypeError, ValueError):
         await update.message.reply_text("Получены некорректные данные из Mini App")
         return
 
-    if not product or quantity <= 0:
-        await update.message.reply_text("Получены некорректные данные из Mini App")
-        return
+    sanitized_items = []
+    for item in items:
+        if not isinstance(item, dict):
+            await update.message.reply_text("Получены некорректные данные из Mini App")
+            return
+        try:
+            product_id = int(item.get("id"))
+            quantity = int(item.get("quantity"))
+        except (TypeError, ValueError):
+            await update.message.reply_text("Получены некорректные данные из Mini App")
+            return
+        if quantity <= 0:
+            await update.message.reply_text("Получены некорректные данные из Mini App")
+            return
+        sanitized_items.append(
+            {
+                "id": product_id,
+                "title": str(item.get("title", "")).strip(),
+                "quantity": quantity,
+            }
+        )
 
     order_payload = {
-        "user_id": telegram_user_id,
+        "items": sanitized_items,
+        "telegram_user_id": telegram_user_id,
         "username": str(telegram_username or "").strip(),
-        "product": str(product).strip(),
-        "quantity": quantity,
+        "init_data": str(payload.get("init_data", "") or "").strip(),
     }
     order_api_url = _get_order_api_url(context)
     is_ok = _post_order_to_api(order_api_url, order_payload)
 
     if is_ok:
         admin_chat_id = _get_admin_chat_id(context)
+        lines = ["🛒 Новый заказ", ""]
+        lines.append(f"Пользователь: @{order_payload['username']}")
+        lines.append(f"ID: {order_payload['telegram_user_id']}")
+        lines.append("")
+        lines.append("Товары:")
+        for item in sanitized_items:
+            title = item.get("title") or f"#{item['id']}"
+            lines.append(f"- {title} × {item['quantity']}")
         await context.bot.send_message(
             chat_id=admin_chat_id,
-            text=(
-                "🛒 Новый заказ\n\n"
-                f"Пользователь: @{order_payload['username']}\n"
-                f"ID: {order_payload['user_id']}\n\n"
-                f"Товар: {order_payload['product']}\n"
-                f"Количество: {order_payload['quantity']}"
-            ),
+            text="\n".join(lines),
         )
         await update.message.reply_text("Заказ принят ✅")
     else:

@@ -35,7 +35,10 @@
 
                     <div class="mt-auto d-flex justify-content-between align-items-center">
                         <span class="price mb-0">{{ product.price }} ₽</span>
-                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-neon btn-sm">В корзину</a>
+                        <form method="post" action="{% url 'add_to_cart' product.id %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-neon btn-sm">В корзину</button>
+                        </form>
                     </div>
                 </div>
             </div>

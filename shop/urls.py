@@ -3,6 +3,8 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('login/', views.login, name='login'),
+    path('telegram/auth/', views.verify_telegram_auth, name='telegram_auth'),
     path('cart/', views.cart_view, name='cart'),
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
