@@ -428,17 +428,3 @@ def api_products(request):
 
     return JsonResponse({"status": "ok", "products": data})
 
-
-def debug_check(request):
-    from django.http import JsonResponse
-    import sys
-    import django
-    from django.conf import settings
-    return JsonResponse({
-        'django_version': django.__version__,
-        'python_version': sys.version,
-        'debug': settings.DEBUG,
-        'databases': str(settings.DATABASES),
-        'installed_apps': settings.INSTALLED_APPS,
-        'allowed_hosts': settings.ALLOWED_HOSTS,
-    })

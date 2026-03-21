@@ -44,3 +44,5 @@ desktop.ini
 .venv_lnx/
 media/
 *.zip
+myshop_backup.sql
+upload_to_cloudinary.py

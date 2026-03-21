@@ -15,7 +15,6 @@ urlpatterns = [
     path('products/', views.products_page, name='products_page'),
     path('gallery/', views.gallery, name='gallery'),
     path("miniapp/", views.miniapp, name="miniapp"),
-    path('debug-check/', views.debug_check, name='debug_check'),
     path("api/order/", views.api_create_order, name="api_create_order"),
     path("api/products/", views.api_products, name="api_products"),
 ]
