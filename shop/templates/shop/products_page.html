@@ -11,7 +11,7 @@
             <div class="card h-100 shadow-sm product-card">
                 <div class="image-container">
                     {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                        <img src="https://res.cloudinary.com/{{ CLOUDINARY_CLOUD_NAME }}/image/upload/{{ product.image }}" class="card-img-top" alt="{{ product.title }}">
                     {% else %}
                         <img src="{% static 'images/test-img.jpg' %}" class="card-img-top" alt="{{ product.title }}">
                     {% endif %}
