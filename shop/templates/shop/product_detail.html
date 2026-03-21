@@ -2,6 +2,9 @@
 
 {% block content %}
 <h2>{{ product.title }}</h2>
+{% if product.image %}
+<img src="https://res.cloudinary.com/{{ CLOUDINARY_CLOUD_NAME }}/image/upload/{{ product.image }}" alt="{{ product.title }}">
+{% endif %}
 <p>{{ product.description }}</p>
 <p>Цена: {{ product.price }} ₽</p>
 
