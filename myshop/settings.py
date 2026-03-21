@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import cloudinary
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv()
+load_dotenv(override=False)
 
 def env_bool(name, default=False):
     value = os.environ.get(name)
