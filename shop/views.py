@@ -436,3 +436,11 @@ def api_products(request):
             })
     
     return JsonResponse(data, safe=False)
+
+
+def debug_version(request):
+    import shop.views
+    return JsonResponse({
+        'file': shop.views.__file__,
+        'has_api_create_order': hasattr(shop.views, 'api_create_order')
+    })
