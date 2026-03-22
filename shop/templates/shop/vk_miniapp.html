@@ -387,12 +387,25 @@
         }
         
         // Инициализация VK Bridge
-        if (typeof vkBridge !== 'undefined') {
-            vkBridge.send('VKWebAppInit');
-            vkBridge.send('VKWebAppGetUserInfo').then(data => {
-                console.log('VK User:', data);
-            });
+        window.vkBridge = window.vkBridge || window.bridge;
+
+        // Ждём загрузки VK API
+        function initVK() {
+            if (typeof vkBridge !== 'undefined') {
+                vkBridge.send('VKWebAppInit').then(() => {
+                    console.log('VK Bridge инициализирован');
+                }).catch(e => console.error('VK Bridge error:', e));
+                
+                vkBridge.send('VKWebAppGetUserInfo').then(data => {
+                    console.log('VK User:', data);
+                    window.vkUser = data;
+                });
+            } else {
+                setTimeout(initVK, 100);
+            }
         }
+
+        document.addEventListener('DOMContentLoaded', initVK);
         
         loadProducts();
     </script>
