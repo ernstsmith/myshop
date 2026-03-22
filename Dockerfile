@@ -9,6 +9,7 @@ RUN apt-get update \
 COPY requirements.txt /app/
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt gunicorn
+ARG CACHE_BUST=1
 COPY . /app/
 RUN python manage.py collectstatic --noinput
 EXPOSE 8080
