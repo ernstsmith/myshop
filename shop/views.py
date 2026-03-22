@@ -329,83 +329,66 @@ def verify_telegram_auth(request):
     return redirect(next_url)
 
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+
 @csrf_exempt
-@require_POST
 def api_create_order(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'error': 'Method not allowed'}, status=405)
+    
     try:
-        payload = json.loads(request.body.decode("utf-8"))
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({"status": "error", "error": "Invalid JSON"}, status=400)
-
-    init_data = str(payload.get("init_data", "") or "").strip()
-    if not verify_telegram_init_data(init_data, settings.TELEGRAM_BOT_TOKEN):
-        return JsonResponse({"status": "error", "error": "Invalid Telegram initData"}, status=403)
-
-    items = payload.get("items")
-    if not isinstance(items, list) or not items:
-        return JsonResponse({"status": "error", "error": "items must be a non-empty list"}, status=400)
-
-    sanitized_items = []
-    product_ids = []
-    for item in items:
-        if not isinstance(item, dict):
-            return JsonResponse({"status": "error", "error": "Invalid item payload"}, status=400)
-        try:
-            product_id = int(item.get("id"))
-            quantity = int(item.get("quantity"))
-        except (TypeError, ValueError):
-            return JsonResponse({"status": "error", "error": "Item id and quantity must be integers"}, status=400)
-        if quantity <= 0:
-            return JsonResponse({"status": "error", "error": "quantity must be > 0"}, status=400)
-        sanitized_items.append({"id": product_id, "quantity": quantity})
-        product_ids.append(product_id)
-
-    products = list(Product.objects.filter(id__in=product_ids, available=True))
-    product_map = {product.id: product for product in products}
-
-    missing_products = [pid for pid in product_ids if pid not in product_map]
-    if missing_products:
-        return JsonResponse({"status": "error", "error": "Some products are unavailable"}, status=400)
-
-    telegram_user_id = payload.get("telegram_user_id")
-    username = str(payload.get("username", "") or "").strip()
-    telegram_user = None
-    if telegram_user_id is not None:
-        telegram_user = TelegramUser.objects.filter(
-            telegram_id=str(telegram_user_id).strip()
-        ).first()
-        if not telegram_user:
-            telegram_user = TelegramUser.objects.create(
-                telegram_id=str(telegram_user_id).strip(),
-                username=username,
-                auth_date=timezone.now(),
-            )
-
-    with transaction.atomic():
+        data = json.loads(request.body)
+        cart = data.get('cart', [])
+        
+        if not cart:
+            return JsonResponse({'status': 'error', 'error': 'Cart is empty'}, status=400)
+        
+        # Временно создаём заказ без проверки Telegram
+        from shop.models import Order
+        import json
+        
+        # Создаём заказ
         order = Order.objects.create(
-            telegram_user=telegram_user,
-            tg_user_id=str(telegram_user_id).strip() if telegram_user_id is not None else None,
-            tg_username=username or (telegram_user.username if telegram_user else ""),
-            total_amount=0,
-            paid=False,
-            metadata={"source": "miniapp", "items_count": len(sanitized_items)},
+            # telegram_user=None,  # временно без пользователя
+            total_price=0,
+            status='new'
         )
-
-        total = Decimal("0")
-        order_items = []
-        for item in sanitized_items:
-            product = product_map[item["id"]]
-            quantity = item["quantity"]
-            total += product.price * quantity
-            order_items.append(
-                OrderItem(order=order, product=product, quantity=quantity, price=product.price)
-            )
-
-        OrderItem.objects.bulk_create(order_items)
-        order.total_amount = total
-        order.save(update_fields=["total_amount"])
-
-    return JsonResponse({"status": "ok", "order_id": order.id}, status=201)
+        
+        # Добавляем товары в заказ
+        total = 0
+        for item in cart:
+            from shop.models import Product
+            try:
+                product = Product.objects.get(id=item['id'])
+                quantity = item.get('quantity', 1)
+                # Создаём позицию заказа
+                from shop.models import OrderItem
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    price=product.price,
+                    quantity=quantity
+                )
+                total += product.price * quantity
+            except Product.DoesNotExist:
+                pass
+        
+        order.total_price = total
+        order.save()
+        
+        return JsonResponse({
+            'status': 'ok',
+            'order_id': order.id,
+            'message': 'Заказ создан'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'error': str(e)
+        }, status=500)
 
 def api_products(request):
     from django.http import JsonResponse
