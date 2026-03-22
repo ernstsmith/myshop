@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-dev-key-123456")
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    ".ngrok-free.dev",
+    ".up.railway.app",
 ]
 ALLOWED_HOSTS += [
     host.strip()
@@ -155,7 +155,7 @@ TELEGRAM_ADMIN_CHAT_ID = os.environ.get("TELEGRAM_ADMIN_CHAT_ID", "")
 TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "")
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://*.ngrok-free.dev",
+    "https://*.up.railway.app",
 ]
 
 X_FRAME_OPTIONS = os.environ.get(

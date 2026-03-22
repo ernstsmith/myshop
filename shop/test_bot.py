@@ -15,7 +15,7 @@ def _make_update(user_id=42):
     return SimpleNamespace(message=message, effective_user=effective_user, callback_query=None)
 
 
-def _make_context(admin_chat_id=123456, webapp_url="https://example.ngrok-free.dev/miniapp/"):
+def _make_context(admin_chat_id=123456, webapp_url="https://myshop-production-2acb.up.railway.app/miniapp/"):
     app = SimpleNamespace(bot_data={"admin_chat_id": admin_chat_id, "webapp_url": webapp_url})
     bot_mock = SimpleNamespace(send_message=AsyncMock())
     return SimpleNamespace(application=app, bot=bot_mock)
@@ -87,7 +87,7 @@ class BotHandlersTests(IsolatedAsyncioTestCase):
         update.message.reply_text.assert_awaited_once_with("Сообщение отправлено")
 
     async def test_shop_command_returns_webapp_button(self):
-        webapp_url = "https://example.ngrok-free.dev/miniapp/"
+        webapp_url = "https://myshop-production-2acb.up.railway.app/miniapp/"
         update = _make_update()
         context = _make_context(webapp_url=webapp_url)
 
