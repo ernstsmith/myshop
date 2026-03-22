@@ -444,3 +444,12 @@ def debug_version(request):
         'file': shop.views.__file__,
         'has_api_create_order': hasattr(shop.views, 'api_create_order')
     })
+
+
+def debug_function(request):
+    import inspect
+    from shop.views import api_create_order
+    source = inspect.getsource(api_create_order)
+    return JsonResponse({
+        'source': source[:2000]  # первые 2000 символов
+    })

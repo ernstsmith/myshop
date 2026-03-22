@@ -17,6 +17,7 @@ urlpatterns = [
     path('vk/', views.vk_miniapp, name='vk_miniapp'),
     path("miniapp/", views.miniapp, name="miniapp"),
     path('debug-version/', views.debug_version, name='debug_version'),
+    path('debug-function/', views.debug_function, name='debug_function'),
     path("api/order/", views.api_create_order, name="api_create_order"),
     path("api/products/", views.api_products, name="api_products"),
 ]
