@@ -10,6 +10,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbid
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.admin.views.decorators import staff_member_required
@@ -215,6 +216,7 @@ def products_page(request):
 def gallery(request):
     return render(request, 'shop/gallery.html')
 
+@xframe_options_exempt
 def miniapp(request):
     return render(request, "miniapp.html")
 
