@@ -109,6 +109,7 @@ class Order(models.Model):
     tg_username = models.CharField(max_length=150, blank=True, default="")
 
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     paid = models.BooleanField(default=False)
 
