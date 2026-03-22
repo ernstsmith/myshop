@@ -342,31 +342,57 @@ def api_create_order(request):
     try:
         data = json.loads(request.body)
         cart = data.get('cart', [])
+        init_data = data.get('initData', '')
         
         if not cart:
             return JsonResponse({'status': 'error', 'error': 'Cart is empty'}, status=400)
         
-        # Создаём заказ БЕЗ total_price
+        # Получаем пользователя из Telegram
+        telegram_user = None
+        if init_data:
+            try:
+                from shop.telegram_utils import verify_telegram_init_data, get_telegram_user_from_init_data
+                if verify_telegram_init_data(init_data):
+                    telegram_user = get_telegram_user_from_init_data(init_data)
+            except:
+                pass
+        
+        # Создаём заказ
         order = Order.objects.create(
-            status='new'
+            status='new',
+            telegram_user=telegram_user
         )
         
-        # Добавляем товары в заказ
+        # Добавляем товары
         total = 0
+        items_list = []
         for item in cart:
-            try:
-                product = Product.objects.get(id=item['id'])
-                quantity = item.get('quantity', 1)
-                
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    price=product.price,
-                    quantity=quantity
-                )
-                total += float(product.price) * quantity
-            except Product.DoesNotExist:
-                pass
+            product = Product.objects.get(id=item['id'])
+            quantity = item.get('quantity', 1)
+            price = float(product.price)
+            subtotal = price * quantity
+            
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                price=price,
+                quantity=quantity
+            )
+            total += subtotal
+            
+            items_list.append({
+                'title': product.title,
+                'quantity': quantity,
+                'price': price,
+                'subtotal': subtotal
+            })
+        
+        order.total_price = total
+        order.save()
+        
+        # Отправляем уведомление в Telegram
+        from shop.telegram_notify import send_order_notification
+        send_order_notification(order, items_list)
         
         return JsonResponse({
             'status': 'ok',

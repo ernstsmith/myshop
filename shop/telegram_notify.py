@@ -8,43 +8,33 @@ TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_CHAT_ID = os.getenv("TELEGRAM_ADMIN_CHAT_ID")
 
 
-def send_order_notification(order):
-
-    items = ""
-    for item in order.items.all():
-        items += f"{item.product.title} × {item.quantity}\n"
-
-    text = (
-        f"🛒 <b>Новый заказ #{order.id}</b>\n\n"
-        f"{items}\n"
-        f"💰 Сумма: {order.total_amount} ₽"
-    )
-
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-
-    keyboard = {
-        "inline_keyboard": [
-            [
-                {"text": "✅ Подтвердить", "callback_data": f"confirm_{order.id}"},
-                {"text": "❌ Отменить", "callback_data": f"cancel_{order.id}"}
-            ],
-            [
-                {"text": "📦 Отправлен", "callback_data": f"sent_{order.id}"}
-            ]
-        ]
-    }
-
-    data = {
-        "chat_id": ADMIN_CHAT_ID,
-        "text": text,
-        "parse_mode": "HTML",
-        "reply_markup": keyboard
-    }
-
-    try:
-        requests.post(url, json=data, timeout=5)
-    except requests.RequestException:
-        return
+def send_order_notification(order, items_list):
+    from django.conf import settings
+    import requests
+    
+    total = sum(item['subtotal'] for item in items_list)
+    
+    # Формируем сообщение
+    message = f"🛍 *Новый заказ #{order.id}*\n\n"
+    message += "📦 *Товары:*\n"
+    for item in items_list:
+        message += f"• {item['title']} x{item['quantity']} = {item['subtotal']} ₽\n"
+    message += f"\n💰 *Итого:* {total} ₽"
+    
+    if order.telegram_user:
+        message += f"\n👤 *Покупатель:* @{order.telegram_user.username or 'user'}"
+    
+    # Отправляем администратору
+    admin_chat_id = settings.TELEGRAM_ADMIN_CHAT_ID
+    if admin_chat_id:
+        requests.post(
+            f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={
+                'chat_id': admin_chat_id,
+                'text': message,
+                'parse_mode': 'Markdown'
+            }
+        )
 
 
 def notify_order_status(order):
