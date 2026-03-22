@@ -334,6 +334,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from shop.models import Product, Order, OrderItem
 
+import json
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from shop.models import Product, Order, OrderItem, TelegramUser
+from django.conf import settings
+
 @csrf_exempt
 def api_create_order(request):
     if request.method != 'POST':
@@ -342,35 +351,19 @@ def api_create_order(request):
     try:
         data = json.loads(request.body)
         cart = data.get('cart', [])
-        init_data = data.get('initData', '')
         
         if not cart:
             return JsonResponse({'status': 'error', 'error': 'Cart is empty'}, status=400)
         
-        # Получаем пользователя из Telegram
-        telegram_user = None
-        if init_data:
-            try:
-                from shop.telegram_utils import verify_telegram_init_data, get_telegram_user_from_init_data
-                if verify_telegram_init_data(init_data):
-                    telegram_user = get_telegram_user_from_init_data(init_data)
-            except:
-                pass
-        
         # Создаём заказ
-        order = Order.objects.create(
-            status='new',
-            telegram_user=telegram_user
-        )
+        order = Order.objects.create(status='new')
         
         # Добавляем товары
         total = 0
-        items_list = []
         for item in cart:
             product = Product.objects.get(id=item['id'])
             quantity = item.get('quantity', 1)
             price = float(product.price)
-            subtotal = price * quantity
             
             OrderItem.objects.create(
                 order=order,
@@ -378,22 +371,10 @@ def api_create_order(request):
                 price=price,
                 quantity=quantity
             )
-            total += subtotal
-            
-            items_list.append({
-                'title': product.title,
-                'quantity': quantity,
-                'price': price,
-                'subtotal': subtotal
-            })
+            total += price * quantity
         
         order.total_price = total
         order.save()
-        
-        # Временно отключено для отладки
-        print(f"DEBUG: Order {order.id} created with {len(items_list)} items")
-        # from shop.telegram_notify import send_order_notification
-        # send_order_notification(order, items_list)
         
         return JsonResponse({
             'status': 'ok',
