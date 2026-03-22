@@ -406,34 +406,53 @@ def api_create_order(request):
     return JsonResponse({"status": "ok", "order_id": order.id}, status=201)
 
 def api_products(request):
+    from django.http import JsonResponse
+    from django.conf import settings
+    from shop.models import Product
+    
     products = Product.objects.filter(available=True)
+    
     if not products.exists():
         data = [
             {
-                "id": "fallback-tshirt",
-                "title": "T-shirt",
-                "price": 199.0,
-                "image": "/static/shop/images/tshirt.jpg",
-                "description": "Sample T-shirt",
+                "id": 1,
+                "title": "Худи",
+                "price": 2500.0,
+                "image": "products/ChatGPT_Image_10_мар._2026_г._21_27_49.png",
+                "description": ""
             },
             {
-                "id": "fallback-hoodie",
-                "title": "Hoodie",
-                "price": 299.0,
-                "image": "/static/shop/images/hoodie.jpg",
-                "description": "Sample Hoodie",
+                "id": 2,
+                "title": "Футболка polo Graffiti",
+                "price": 1500.0,
+                "image": "products/ChatGPT_Image_10_мар._2026_г._21_27_42.png",
+                "description": ""
             },
+            {
+                "id": 3,
+                "title": "Лонгслив Street Style",
+                "price": 2000.0,
+                "image": "products/ChatGPT_Image_9_мар_xWxzpqn._2026_г._18_40_47.png",
+                "description": ""
+            },
+            {
+                "id": 4,
+                "title": "Майка",
+                "price": 1200.0,
+                "image": "products/ChatGPT_Image_10_мар._2026_г._21_28_24.png",
+                "description": ""
+            }
         ]
-        return JsonResponse({"status": "ok", "products": data})
-
-    data = []
-    for product in products:
-        data.append({
-            "id": product.id,
-            "title": product.title,
-            "price": float(product.price),
-            "image": product.image.url if product.image else "",
-            "description": product.description,
-        })
-
-    return JsonResponse({"status": "ok", "products": data})
+    else:
+        data = []
+        for p in products:
+            image_name = p.image.name if p.image else ''
+            data.append({
+                'id': p.id,
+                'title': p.title,
+                'price': float(p.price),
+                'image': image_name,
+                'description': p.description or ''
+            })
+    
+    return JsonResponse(data, safe=False)
