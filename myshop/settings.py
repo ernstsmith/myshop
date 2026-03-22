@@ -138,6 +138,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
 CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "daqsvvw0g")
+VK_APP_ID = os.environ.get('VK_APP_ID', '54499010')
 
 STORAGES = {
     "default": {

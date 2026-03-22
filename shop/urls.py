@@ -14,6 +14,7 @@ urlpatterns = [
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),  # <-- добавлено
     path('products/', views.products_page, name='products_page'),
     path('gallery/', views.gallery, name='gallery'),
+    path('vk/', views.vk_miniapp, name='vk_miniapp'),
     path("miniapp/", views.miniapp, name="miniapp"),
     path("api/order/", views.api_create_order, name="api_create_order"),
     path("api/products/", views.api_products, name="api_products"),
