@@ -14,6 +14,8 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.admin.views.decorators import staff_member_required
+import vk_api
+from vk_api.utils import get_random_id
 from shop.models import Product, Order, OrderItem, TelegramUser, Cart, CartItem
 from shop.telegram_utils import verify_telegram_init_data
 from shop.telegram_notify import notify_order_status
@@ -53,13 +55,13 @@ def home(request):
     })
 
 # VK Mini App
+@xframe_options_exempt
 def vk_miniapp(request):
-    from django.conf import settings
-    products = Product.objects.filter(available=True)
+    vk_app_id = settings.VK_APP_ID
     return render(request, 'shop/vk_miniapp.html', {
-        'products': products,
-        'vk_app_id': getattr(settings, 'VK_APP_ID', '54499010'),
-        'CLOUDINARY_CLOUD_NAME': getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'daqsvvw0g'),
+        'vk_app_id': vk_app_id,
+        'products': Product.objects.filter(available=True),
+        'CLOUDINARY_CLOUD_NAME': settings.CLOUDINARY_CLOUD_NAME,
     })
 
 # shop/views.py
@@ -360,10 +362,12 @@ def api_create_order(request):
         
         # Добавляем товары
         total = 0
+        items_list = []
         for item in cart:
             product = Product.objects.get(id=item['id'])
             quantity = item.get('quantity', 1)
             price = float(product.price)
+            subtotal = price * quantity
             
             OrderItem.objects.create(
                 order=order,
@@ -371,10 +375,20 @@ def api_create_order(request):
                 price=price,
                 quantity=quantity
             )
-            total += price * quantity
+            total += subtotal
+            items_list.append({
+                'title': product.title,
+                'quantity': quantity,
+                'price': price,
+                'subtotal': subtotal
+            })
         
         order.total_price = total
         order.save()
+
+        if not settings.DISABLE_NOTIFICATIONS:
+            from shop.telegram_notify import send_order_notification
+            send_order_notification(order, items_list)
         
         return JsonResponse({
             'status': 'ok',

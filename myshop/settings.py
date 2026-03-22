@@ -183,3 +183,20 @@ CSRF_TRUSTED_ORIGINS = [
 # @xframe_options_exempt
 # def miniapp(request):
 #     ...
+
+# Разрешаем VK загружать приложение в iframe
+X_FRAME_OPTIONS = 'ALLOWALL'
+
+# Добавляем VK в доверенные источники
+CSRF_TRUSTED_ORIGINS = [
+    'https://myshop-production-2acb.up.railway.app',
+    'https://web.telegram.org',
+    'https://t.me',
+    'https://telegram.org',
+    'https://vk.com',
+    'https://m.vk.com',
+    'https://*.vk.com',
+]
+
+# Для продакшена лучше использовать конкретные домены
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
