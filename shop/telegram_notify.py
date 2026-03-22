@@ -21,20 +21,26 @@ def send_order_notification(order, items_list):
         message += f"• {item['title']} x{item['quantity']} = {item['subtotal']} ₽\n"
     message += f"\n💰 *Итого:* {total} ₽"
     
-    if order.telegram_user:
-        message += f"\n👤 *Покупатель:* @{order.telegram_user.username or 'user'}"
+    if order.telegram_user and order.telegram_user.username:
+        message += f"\n👤 *Покупатель:* @{order.telegram_user.username}"
+    elif order.telegram_user:
+        message += f"\n👤 *Покупатель:* ID: {order.telegram_user.telegram_id}"
     
     # Отправляем администратору
     admin_chat_id = settings.TELEGRAM_ADMIN_CHAT_ID
     if admin_chat_id:
-        requests.post(
-            f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={
-                'chat_id': admin_chat_id,
-                'text': message,
-                'parse_mode': 'Markdown'
-            }
-        )
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+                json={
+                    'chat_id': admin_chat_id,
+                    'text': message,
+                    'parse_mode': 'Markdown'
+                },
+                timeout=5
+            )
+        except Exception as e:
+            print(f"Ошибка отправки уведомления: {e}")
 
 
 def notify_order_status(order):
