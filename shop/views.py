@@ -390,9 +390,10 @@ def api_create_order(request):
         order.total_price = total
         order.save()
         
-        # Отправляем уведомление в Telegram
-        from shop.telegram_notify import send_order_notification
-        send_order_notification(order, items_list)
+        # Временно отключено для отладки
+        print(f"DEBUG: Order {order.id} created with {len(items_list)} items")
+        # from shop.telegram_notify import send_order_notification
+        # send_order_notification(order, items_list)
         
         return JsonResponse({
             'status': 'ok',
