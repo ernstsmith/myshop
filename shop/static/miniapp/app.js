@@ -8,6 +8,7 @@
   const fallbackCheckoutBtn = document.getElementById('fallbackCheckout');
 
   let products = [];
+  let productsSignature = '';
   let cart = loadCart();
 
   if (tg) {
@@ -90,12 +91,14 @@
     }
 
     products.forEach((product) => {
-      const imageSrc = product.image || FALLBACK_IMAGE;
+      const imageSrc = product.image
+        ? `https://res.cloudinary.com/daqsvvw0g/image/upload/${product.image}`
+        : FALLBACK_IMAGE;
       const description = product.description || '';
       const card = document.createElement('article');
       card.className = 'mini-card';
       card.innerHTML = `
-        <img src="${imageSrc}" alt="${product.title}">
+        <img src="${imageSrc}" alt="${product.title}" style="width:100%;height:180px;object-fit:contain;background:#fff;border-radius:8px;">
         <div class="mini-card-body">
           <h3 class="mini-card-title">${product.title}</h3>
           <p class="mini-card-desc">${description}</p>
@@ -126,7 +129,13 @@
       }
 
       const data = await response.json();
-      products = Array.isArray(data) ? data : (data.products || []);
+      const nextProducts = Array.isArray(data) ? data : (data.products || []);
+      const nextSignature = JSON.stringify(nextProducts);
+      if (nextSignature === productsSignature) {
+        return;
+      }
+      productsSignature = nextSignature;
+      products = nextProducts;
       renderProducts();
     } catch (error) {
       console.error('Failed to load products', error);

@@ -8,6 +8,9 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <style>
+    body { opacity: 0; transition: opacity 0.3s; }
+    body.loaded { opacity: 1; }
+
     /* Обёртка */
     .miniapp-wrap {
       max-width: 960px;
@@ -42,9 +45,10 @@
     /* Изображение полностью по вертикали */
     .mini-card img {
       width: 100%;
-      height: auto;
+      height: 180px;
       object-fit: contain; /* Показываем полностью без обрезки */
-      background: rgba(255,255,255,0.06);
+      background: #fff;
+      border-radius: 8px;
     }
 
     /* Содержимое карточки */
@@ -147,5 +151,10 @@
   </main>
 
   <script src="{% static 'miniapp/app.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.classList.add('loaded');
+    });
+  </script>
 </body>
 </html>
