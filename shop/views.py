@@ -51,6 +51,16 @@ def home(request):
         'gallery_images': gallery_images
     })
 
+# VK Mini App
+def vk_miniapp(request):
+    from django.conf import settings
+    products = Product.objects.filter(available=True)
+    return render(request, 'shop/vk_miniapp.html', {
+        'products': products,
+        'vk_app_id': getattr(settings, 'VK_APP_ID', '54499010'),
+        'CLOUDINARY_CLOUD_NAME': getattr(settings, 'CLOUDINARY_CLOUD_NAME', 'daqsvvw0g'),
+    })
+
 # shop/views.py
 
 def product_detail(request, product_id):
@@ -427,4 +437,3 @@ def api_products(request):
         })
 
     return JsonResponse({"status": "ok", "products": data})
-
