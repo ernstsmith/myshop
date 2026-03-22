@@ -283,6 +283,10 @@ def build_application(env: Mapping[str, str] | None = None) -> Application:
     return app
 
 
+def create_application(env: Mapping[str, str] | None = None) -> Application:
+    return build_application(env)
+
+
 def run_bot() -> None:
     app = build_application()
     logger.info("Бот запущен")
