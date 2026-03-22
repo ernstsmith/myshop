@@ -346,9 +346,8 @@ def api_create_order(request):
         if not cart:
             return JsonResponse({'status': 'error', 'error': 'Cart is empty'}, status=400)
         
-        # Создаём заказ
+        # Создаём заказ БЕЗ total_price
         order = Order.objects.create(
-            total_price=0,
             status='new'
         )
         
@@ -359,23 +358,20 @@ def api_create_order(request):
                 product = Product.objects.get(id=item['id'])
                 quantity = item.get('quantity', 1)
                 
-                # Создаём позицию заказа
                 OrderItem.objects.create(
                     order=order,
                     product=product,
                     price=product.price,
                     quantity=quantity
                 )
-                total += product.price * quantity
+                total += float(product.price) * quantity
             except Product.DoesNotExist:
                 pass
-        
-        order.total_price = total
-        order.save()
         
         return JsonResponse({
             'status': 'ok',
             'order_id': order.id,
+            'total': total,
             'message': 'Заказ создан'
         })
         
