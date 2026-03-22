@@ -27,9 +27,13 @@ async function loadProducts() {
                 <div class="mini-card-body">
                     <h3 class="mini-card-title">${product.title}</h3>
                     <p class="mini-card-price">${product.price} ₽</p>
-                    <button class="mini-btn" onclick="addToCart(${product.id})">В корзину</button>
+                    <button class="mini-btn" type="button">В корзину</button>
                 </div>
             `;
+            const button = card.querySelector('.mini-btn');
+            button.addEventListener('click', () => {
+                addToCart(product.id, product.title, product.price);
+            });
             container.appendChild(card);
         });
     } catch (error) {
@@ -38,14 +42,19 @@ async function loadProducts() {
 }
 
 // Функция добавления в корзину
-function addToCart(productId) {
+function addToCart(productId, productTitle, productPrice) {
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
     const existing = cart.find(item => item.id === productId);
     
     if (existing) {
         existing.quantity += 1;
     } else {
-        cart.push({ id: productId, quantity: 1 });
+        cart.push({
+            id: productId,
+            title: productTitle,
+            price: productPrice,
+            quantity: 1
+        });
     }
     
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -92,16 +101,41 @@ function updateCartUI() {
 // Оформление заказа
 async function checkout() {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    if (cart.length === 0) return;
+    if (cart.length === 0) {
+        console.log('Корзина пуста');
+        return;
+    }
+    
+    // Добавляем CSRF токен
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
     
     const initData = window.Telegram?.WebApp?.initData || '';
     
     try {
         const response = await fetch('/api/order/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
             body: JSON.stringify({
-                cart: cart,
+                cart: cart.map(item => ({
+                    id: item.id,
+                    quantity: item.quantity
+                })),
                 initData: initData
             })
         });
@@ -114,13 +148,13 @@ async function checkout() {
                 window.Telegram.WebApp.close();
             }
         } else {
-            throw new Error('Ошибка');
+            const error = await response.json();
+            console.error('Ошибка:', error);
+            alert('Ошибка: ' + JSON.stringify(error));
         }
     } catch (error) {
         console.error('Ошибка оформления:', error);
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.showAlert('Ошибка при оформлении заказа');
-        }
+        alert('Ошибка сети: ' + error.message);
     }
 }
 
