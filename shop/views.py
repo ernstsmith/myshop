@@ -329,9 +329,10 @@ def verify_telegram_auth(request):
     return redirect(next_url)
 
 
+import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-import json
+from shop.models import Product, Order, OrderItem
 
 @csrf_exempt
 def api_create_order(request):
@@ -345,13 +346,8 @@ def api_create_order(request):
         if not cart:
             return JsonResponse({'status': 'error', 'error': 'Cart is empty'}, status=400)
         
-        # Временно создаём заказ без проверки Telegram
-        from shop.models import Order
-        import json
-        
         # Создаём заказ
         order = Order.objects.create(
-            # telegram_user=None,  # временно без пользователя
             total_price=0,
             status='new'
         )
@@ -359,12 +355,11 @@ def api_create_order(request):
         # Добавляем товары в заказ
         total = 0
         for item in cart:
-            from shop.models import Product
             try:
                 product = Product.objects.get(id=item['id'])
                 quantity = item.get('quantity', 1)
+                
                 # Создаём позицию заказа
-                from shop.models import OrderItem
                 OrderItem.objects.create(
                     order=order,
                     product=product,
