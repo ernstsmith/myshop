@@ -123,6 +123,8 @@ async function checkout() {
     }
     
     const initData = window.Telegram?.WebApp?.initData || '';
+    console.log('initData length:', initData.length);
+    console.log('initData:', initData.substring(0, 100)); // первые 100 символов
     
     try {
         const response = await fetch('/api/order/', {
