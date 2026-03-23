@@ -385,8 +385,6 @@ def api_create_order(request):
         order.save()
 
         if not settings.DISABLE_NOTIFICATIONS:
-            from shop.telegram_notify import send_order_notification
-            send_order_notification(order, items_list)
         
         return JsonResponse({
             'status': 'ok',
