@@ -46,3 +46,4 @@ media/
 *.zip
 myshop_backup.sql
 upload_to_cloudinary.py
+shop/telegram_notify.py
