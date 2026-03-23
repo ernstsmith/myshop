@@ -14,8 +14,6 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.admin.views.decorators import staff_member_required
-import vk_api
-from vk_api.utils import get_random_id
 from shop.models import Product, Order, OrderItem, TelegramUser, Cart, CartItem
 from shop.telegram_utils import verify_telegram_init_data
 from shop.telegram_notify import notify_order_status
