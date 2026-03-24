@@ -380,14 +380,14 @@ def api_create_order(request):
                 'subtotal': subtotal
             })
         
-        order.total_price = total
+                order.total_price = total
         order.save()
 
-     return JsonResponse({
-    'status': 'ok',
-    'order_id': order.id,
-    'total': total,
-    'message': 'Заказ создан'
+        return JsonResponse({
+            'status': 'ok',
+            'order_id': order.id,
+            'total': total,
+            'message': 'Заказ создан'
         })
         
     except Exception as e:
