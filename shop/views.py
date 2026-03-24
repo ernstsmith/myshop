@@ -30,13 +30,10 @@ def _get_session_telegram_user(request):
         request.session.pop("telegram_user_pk", None)
         return None
 
-# Главная страница с товарами + динамическая галерея
+
 def home(request):
     products = Product.objects.filter(available=True)
-
-    # Папка gallery внутри static/
     gallery_dir = os.path.join(settings.BASE_DIR, "static", "gallery")
-
     if not os.path.exists(gallery_dir):
         gallery_images = []
     else:
@@ -45,13 +42,12 @@ def home(request):
             for f in os.listdir(gallery_dir)
             if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
         ]
-
     return render(request, 'shop/home.html', {
         'products': products,
         'gallery_images': gallery_images
     })
 
-# VK Mini App
+
 @xframe_options_exempt
 def vk_miniapp(request):
     vk_app_id = settings.VK_APP_ID
@@ -61,14 +57,12 @@ def vk_miniapp(request):
         'CLOUDINARY_CLOUD_NAME': settings.CLOUDINARY_CLOUD_NAME,
     })
 
-# shop/views.py
 
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'shop/product_detail.html', {'product': product})
 
 
-# Просмотр корзины
 def cart_view(request):
     cart = request.session.get('cart', {})
     telegram_user = _get_session_telegram_user(request)
@@ -80,14 +74,9 @@ def cart_view(request):
             request.session["cart_db_id"] = cart_obj.id
     products = []
     total = Decimal("0")
-
     if cart:
         product_ids = [int(pid) for pid in cart.keys()]
-        product_map = {
-            product.id: product
-            for product in Product.objects.filter(id__in=product_ids)
-        }
-
+        product_map = {product.id: product for product in Product.objects.filter(id__in=product_ids)}
         for product_id, quantity in cart.items():
             product = product_map.get(int(product_id))
             if not product:
@@ -98,7 +87,7 @@ def cart_view(request):
             total += subtotal
     return render(request, 'shop/cart.html', {'products': products, 'total': total})
 
-# Добавление товара в корзину
+
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -120,7 +109,7 @@ def add_to_cart(request, product_id):
         cart_item.save(update_fields=["quantity"])
     return redirect('cart')
 
-# Удаление товара из корзины
+
 @require_POST
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', {})
@@ -137,7 +126,7 @@ def remove_from_cart(request, product_id):
                 CartItem.objects.filter(cart=cart_obj, product_id=product_id).delete()
     return redirect('cart')
 
-# Оформление заказа
+
 def checkout(request):
     cart = request.session.get('cart', {})
     telegram_user = _get_session_telegram_user(request)
@@ -151,32 +140,23 @@ def checkout(request):
             total_amount=0,
             paid=False,
         )
-
         product_ids = [int(pid) for pid in cart.keys()]
-        product_map = {
-            product.id: product
-            for product in Product.objects.filter(id__in=product_ids)
-        }
-
+        product_map = {product.id: product for product in Product.objects.filter(id__in=product_ids)}
         order_items = []
         for product_id, quantity in cart.items():
             product = product_map.get(int(product_id))
             if not product:
                 continue
             quantity = int(quantity)
-            subtotal = product.price * quantity
-            total += subtotal
+            total += product.price * quantity
             order_items.append(
                 OrderItem(order=order, product=product, quantity=quantity, price=product.price)
             )
-
         if order_items:
             OrderItem.objects.bulk_create(order_items)
-
         order.total_amount = total
         order.save(update_fields=["total_amount"])
-
-        request.session['cart'] = {}  # очищаем корзину
+        request.session['cart'] = {}
         cart_db_id = request.session.pop("cart_db_id", None)
         if telegram_user and cart_db_id:
             cart_obj = Cart.objects.filter(id=cart_db_id, telegram_user=telegram_user).first()
@@ -186,14 +166,9 @@ def checkout(request):
     else:
         products = []
         total = Decimal("0")
-
         if cart:
             product_ids = [int(pid) for pid in cart.keys()]
-            product_map = {
-                product.id: product
-                for product in Product.objects.filter(id__in=product_ids)
-            }
-
+            product_map = {product.id: product for product in Product.objects.filter(id__in=product_ids)}
             for product_id, quantity in cart.items():
                 product = product_map.get(int(product_id))
                 if not product:
@@ -208,12 +183,15 @@ def checkout(request):
             {'products': products, 'total': total, 'telegram_user': telegram_user},
         )
 
+
 def products_page(request):
     products = Product.objects.all()
     return render(request, 'shop/products_page.html', {'products': products})
 
+
 def gallery(request):
     return render(request, 'shop/gallery.html')
+
 
 @xframe_options_exempt
 def miniapp(request):
@@ -236,7 +214,6 @@ def profile(request):
     telegram_user = _get_session_telegram_user(request)
     if not telegram_user:
         return redirect("/login/")
-
     orders = Order.objects.filter(telegram_user=telegram_user).order_by("-created_at")
     return render(
         request,
@@ -253,13 +230,9 @@ def update_order_status(request, order_id):
     allowed_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
     if new_status not in allowed_statuses:
         return HttpResponseBadRequest("Invalid status")
-
     if order.status != new_status:
         order.status = new_status
         order.save(update_fields=["status"])
-        if order.telegram_user and order.telegram_user.telegram_id:
-            notify_order_status(order)
-
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
@@ -267,47 +240,32 @@ def update_order_status(request, order_id):
 def verify_telegram_auth(request):
     if request.method != "GET":
         return HttpResponseBadRequest("Invalid method")
-
     token = settings.TELEGRAM_BOT_TOKEN
     if not token:
         return HttpResponseBadRequest("Telegram bot token is not configured")
-
     next_url = request.GET.get("next")
     allowed_keys = {"id", "username", "first_name", "last_name", "photo_url", "auth_date"}
     data = {key: value for key, value in request.GET.items() if key in allowed_keys or key == "hash"}
     received_hash = data.pop("hash", None)
     if not received_hash:
         return HttpResponseBadRequest("Missing hash")
-
-    data_check_string = "\n".join(
-        f"{key}={value}" for key, value in sorted(data.items())
-    )
-
+    data_check_string = "\n".join(f"{key}={value}" for key, value in sorted(data.items()))
     secret_key = hashlib.sha256(token.encode("utf-8")).digest()
-    calculated_hash = hmac.new(
-        secret_key,
-        data_check_string.encode("utf-8"),
-        hashlib.sha256,
-    ).hexdigest()
-
+    calculated_hash = hmac.new(secret_key, data_check_string.encode("utf-8"), hashlib.sha256).hexdigest()
     if not hmac.compare_digest(calculated_hash, received_hash):
         return HttpResponseForbidden("Invalid hash")
-
     auth_date_raw = data.get("auth_date")
     try:
         auth_date = int(auth_date_raw)
     except (TypeError, ValueError):
         return HttpResponseBadRequest("Invalid auth_date")
-
     if TELEGRAM_AUTH_MAX_AGE_SECONDS:
         now = int(time.time())
         if now - auth_date > TELEGRAM_AUTH_MAX_AGE_SECONDS:
             return HttpResponseForbidden("Auth data is too old")
-
     telegram_id = data.get("id")
     if not telegram_id:
         return HttpResponseBadRequest("Missing telegram id")
-
     auth_dt = timezone.datetime.fromtimestamp(auth_date, tz=timezone.utc)
     telegram_user, _ = TelegramUser.objects.update_or_create(
         telegram_id=str(telegram_id),
@@ -319,120 +277,58 @@ def verify_telegram_auth(request):
             "auth_date": auth_dt,
         },
     )
-
     request.session["telegram_user_pk"] = telegram_user.pk
     request.session["telegram_user_id"] = telegram_user.telegram_id
     request.session["telegram_username"] = telegram_user.username
-
     next_url = next_url or reverse("home")
     return redirect(next_url)
 
-
-import json
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from shop.models import Product, Order, OrderItem
-
-import json
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from shop.models import Product, Order, OrderItem, TelegramUser
-from django.conf import settings
 
 @csrf_exempt
 def api_create_order(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'error': 'Method not allowed'}, status=405)
-    
     try:
         data = json.loads(request.body)
         cart = data.get('cart', [])
-        
         if not cart:
             return JsonResponse({'status': 'error', 'error': 'Cart is empty'}, status=400)
-        
-        # Создаём заказ
         order = Order.objects.create(status='new')
-        
-        # Добавляем товары
         total = 0
-        items_list = []
         for item in cart:
             product = Product.objects.get(id=item['id'])
             quantity = item.get('quantity', 1)
             price = float(product.price)
-            subtotal = price * quantity
-            
             OrderItem.objects.create(
                 order=order,
                 product=product,
                 price=price,
                 quantity=quantity
             )
-            total += subtotal
-            items_list.append({
-                'title': product.title,
-                'quantity': quantity,
-                'price': price,
-                'subtotal': subtotal
-            })
-        
+            total += price * quantity
         order.total_price = total
         order.save()
-
         return JsonResponse({
             'status': 'ok',
             'order_id': order.id,
             'total': total,
             'message': 'Заказ создан'
         })
-        
     except Exception as e:
         return JsonResponse({
             'status': 'error',
             'error': str(e)
         }, status=500)
 
+
 def api_products(request):
-    from django.http import JsonResponse
-    from django.conf import settings
-    from shop.models import Product
-    
     products = Product.objects.filter(available=True)
-    
     if not products.exists():
         data = [
-            {
-                "id": 1,
-                "title": "Худи",
-                "price": 2500.0,
-                "image": "products/ChatGPT_Image_10_мар._2026_г._21_27_49.png",
-                "description": ""
-            },
-            {
-                "id": 2,
-                "title": "Футболка polo Graffiti",
-                "price": 1500.0,
-                "image": "products/ChatGPT_Image_10_мар._2026_г._21_27_42.png",
-                "description": ""
-            },
-            {
-                "id": 3,
-                "title": "Лонгслив Street Style",
-                "price": 2000.0,
-                "image": "products/ChatGPT_Image_9_мар_xWxzpqn._2026_г._18_40_47.png",
-                "description": ""
-            },
-            {
-                "id": 4,
-                "title": "Майка",
-                "price": 1200.0,
-                "image": "products/ChatGPT_Image_10_мар._2026_г._21_28_24.png",
-                "description": ""
-            }
+            {"id": 1, "title": "Худи", "price": 2500.0, "image": "products/ChatGPT_Image_10_мар._2026_г._21_27_49.png", "description": ""},
+            {"id": 2, "title": "Футболка polo Graffiti", "price": 1500.0, "image": "products/ChatGPT_Image_10_мар._2026_г._21_27_42.png", "description": ""},
+            {"id": 3, "title": "Лонгслив Street Style", "price": 2000.0, "image": "products/ChatGPT_Image_9_мар_xWxzpqn._2026_г._18_40_47.png", "description": ""},
+            {"id": 4, "title": "Майка", "price": 1200.0, "image": "products/ChatGPT_Image_10_мар._2026_г._21_28_24.png", "description": ""}
         ]
     else:
         data = []
@@ -445,7 +341,6 @@ def api_products(request):
                 'image': image_name,
                 'description': p.description or ''
             })
-    
     return JsonResponse(data, safe=False)
 
 
@@ -462,5 +357,5 @@ def debug_function(request):
     from shop.views import api_create_order
     source = inspect.getsource(api_create_order)
     return JsonResponse({
-        'source': source[:2000]  # первые 2000 символов
+        'source': source[:2000]
     })
