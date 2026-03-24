@@ -380,7 +380,7 @@ def api_create_order(request):
                 'subtotal': subtotal
             })
         
-                order.total_price = total
+        order.total_price = total
         order.save()
 
         return JsonResponse({
