@@ -383,13 +383,11 @@ def api_create_order(request):
         order.total_price = total
         order.save()
 
-        if not settings.DISABLE_NOTIFICATIONS:
-        
-        return JsonResponse({
-            'status': 'ok',
-            'order_id': order.id,
-            'total': total,
-            'message': 'Заказ создан'
+     return JsonResponse({
+    'status': 'ok',
+    'order_id': order.id,
+    'total': total,
+    'message': 'Заказ создан'
         })
         
     except Exception as e:
