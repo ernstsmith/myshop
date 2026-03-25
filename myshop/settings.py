@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
@@ -77,15 +77,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "myshop.wsgi.application"
 
+import dj_database_url
+
 DATABASES = {
-    "default": {
-        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
-        "NAME": os.environ.get("DB_NAME", "myshop_db" if DEBUG else ""),
-        "USER": os.environ.get("DB_USER", "postgres" if DEBUG else ""),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "mikrospace" if DEBUG else ""),
-        "HOST": os.environ.get("DB_HOST", "127.0.0.1" if DEBUG else ""),
-        "PORT": os.environ.get("DB_PORT", "5432" if DEBUG else ""),
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 if os.environ.get("DATABASE_URL"):
