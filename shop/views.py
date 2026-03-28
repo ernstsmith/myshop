@@ -44,7 +44,8 @@ def home(request):
         ]
     return render(request, 'shop/home.html', {
         'products': products,
-        'gallery_images': gallery_images
+        'gallery_images': gallery_images,
+        'CLOUDINARY_CLOUD_NAME': settings.CLOUDINARY_CLOUD_NAME,
     })
 
 
