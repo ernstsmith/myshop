@@ -154,8 +154,8 @@ def checkout(request):
             )
         if order_items:
             OrderItem.objects.bulk_create(order_items)
-        order.total_amount = total
-        order.save(update_fields=["total_amount"])
+        order.total_price = total
+        order.save(update_fields=["total_price"])
         request.session['cart'] = {}
         cart_db_id = request.session.pop("cart_db_id", None)
         if telegram_user and cart_db_id:
@@ -359,3 +359,7 @@ def debug_function(request):
     return JsonResponse({
         'source': source[:2000]
     })
+
+def health(request):
+    from django.http import JsonResponse
+    return JsonResponse({'status': 'ok', 'database': 'connected'})
