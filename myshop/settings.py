@@ -153,28 +153,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_ADMIN_CHAT_ID = os.environ.get("TELEGRAM_ADMIN_CHAT_ID", "")
 TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "")
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.up.railway.app",
-]
 
-X_FRAME_OPTIONS = os.environ.get(
-    "X_FRAME_OPTIONS",
-    "SAMEORIGIN" if DEBUG else "DENY",
-)
-
-# Разрешаем загрузку в iframe для Telegram Mini App
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-
-# Или если нужно полностью разрешить:
-# X_FRAME_OPTIONS = 'ALLOWALL'
-
-# Для Telegram Mini App также добавь:
-CSRF_TRUSTED_ORIGINS = [
-    'https://myshop-production-2acb.up.railway.app',
-    'https://web.telegram.org',
-    'https://t.me',
-    'https://telegram.org',
-]
 
 # Если нужно полностью отключить X-Frame-Options для определённых views:
 # В shop/views.py для miniapp добавь декоратор:
