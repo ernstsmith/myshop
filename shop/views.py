@@ -194,6 +194,18 @@ def gallery(request):
     return render(request, 'shop/gallery.html')
 
 
+def privacy_policy(request):
+    return render(request, "shop/privacy_policy.html")
+
+
+def cookie_policy(request):
+    return render(request, "shop/cookie_policy.html")
+
+
+def terms(request):
+    return render(request, "shop/terms.html")
+
+
 @xframe_options_exempt
 def miniapp(request):
     return render(request, "miniapp.html")
