@@ -166,15 +166,11 @@ TELEGRAM_BOT_USERNAME = os.environ.get("TELEGRAM_BOT_USERNAME", "")
 # Разрешаем VK загружать приложение в iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
 
-# Добавляем VK в доверенные источники
+# Добавляем доверенные источники для CSRF
 CSRF_TRUSTED_ORIGINS = [
-    'https://myshop-production-2acb.up.railway.app',
-    'https://web.telegram.org',
-    'https://t.me',
-    'https://telegram.org',
-    'https://vk.com',
-    'https://m.vk.com',
-    'https://*.vk.com',
+    "https://*.ngrok-free.dev",
+    "https://*.up.railway.app",
+    "https://myshop-production-631e.up.railway.app",
 ]
 
 # Для продакшена лучше использовать конкретные домены
