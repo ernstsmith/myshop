@@ -25,7 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-DEFAULT_WEBAPP_URL = "https://myshop-production-2acb.up.railway.app/miniapp/"
+DEFAULT_WEBAPP_URL = "https://myshop-production-631e.up.railway.app/miniapp/"
 DEFAULT_ORDER_API_URL = "http://localhost:8000/api/order/"
 
 

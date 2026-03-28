@@ -20,6 +20,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".up.railway.app",
+    "myshop-production-631e.up.railway.app",
 ]
 ALLOWED_HOSTS += [
     host.strip()

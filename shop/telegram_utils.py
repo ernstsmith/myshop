@@ -13,7 +13,7 @@ keyboard = [
     [
         InlineKeyboardButton(
             "Открыть магазин",
-            web_app=WebAppInfo(url="https://myshop-production-2acb.up.railway.app/miniapp/")
+            web_app=WebAppInfo(url="https://myshop-production-631e.up.railway.app/miniapp/")
         )
     ]
 ]
