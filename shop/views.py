@@ -224,14 +224,18 @@ def login(request):
 
 
 def profile(request):
-    telegram_user = _get_session_telegram_user(request)
-    if not telegram_user:
-        return redirect("/login/")
-    orders = Order.objects.filter(telegram_user=telegram_user).order_by("-created_at")
+    if not request.user.is_authenticated:
+        return redirect(reverse("account_login"))
+    profile_obj = getattr(request.user, "profile", None)
+    telegram_user = getattr(profile_obj, "telegram_user", None)
+    if telegram_user:
+        orders = Order.objects.filter(telegram_user=telegram_user).order_by("-created_at")
+    else:
+        orders = Order.objects.none()
     return render(
         request,
         "shop/profile.html",
-        {"telegram_user": telegram_user, "orders": orders},
+        {"profile": profile_obj, "orders": orders},
     )
 
 

@@ -7,22 +7,17 @@
     <div class="col-12 col-lg-4">
         <div class="card shadow-sm">
             <div class="card-body text-center">
-                {% if telegram_user.photo_url %}
-                    <img src="{{ telegram_user.photo_url }}" alt="Аватар" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
-                {% else %}
-                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
-                        <span class="text-white fs-1">{{ telegram_user.first_name|default:"?"|slice:":1" }}</span>
-                    </div>
-                {% endif %}
+                <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                    <span class="text-white fs-1">{{ request.user.username|default:"?"|slice:":1" }}</span>
+                </div>
 
                 <h4 class="mb-1">
-                    {% if telegram_user.username %}
-                        @{{ telegram_user.username }}
-                    {% else %}
-                        {{ telegram_user.first_name }} {{ telegram_user.last_name }}
-                    {% endif %}
+                    {{ request.user.get_full_name|default:request.user.username }}
                 </h4>
-                <div class="text-muted">ID: {{ telegram_user.telegram_id }}</div>
+                <div class="text-muted">{{ request.user.email }}</div>
+                {% if profile and profile.phone %}
+                    <div class="text-muted mt-2">{{ profile.phone }}</div>
+                {% endif %}
             </div>
         </div>
     </div>

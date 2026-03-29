@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.contrib.auth.models import User
 from decimal import Decimal
 
 
@@ -166,3 +167,30 @@ class TelegramUser(models.Model):
     def __str__(self):
         display = self.username or f"{self.first_name} {self.last_name}".strip()
         return display or f"TelegramUser {self.telegram_id}"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    phone = models.CharField(max_length=20, blank=True)
+    telegram_user = models.OneToOneField(
+        "TelegramUser",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+
+    def __str__(self):
+        return f"Profile for {self.user}"
+
+
+class DeliveryAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addresses")
+    name = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    street = models.CharField(max_length=200)
+    apartment = models.CharField(max_length=20, blank=True)
+    postal_code = models.CharField(max_length=20)
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.name} ({self.city})"
