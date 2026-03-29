@@ -50,3 +50,6 @@ shop/telegram_notify.py
 privatekey
 publickey
 wireguard-install.sh
+privatekey
+publickey
+*.sh
