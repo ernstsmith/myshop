@@ -47,3 +47,6 @@ media/
 myshop_backup.sql
 upload_to_cloudinary.py
 shop/telegram_notify.py
+privatekey
+publickey
+wireguard-install.sh
