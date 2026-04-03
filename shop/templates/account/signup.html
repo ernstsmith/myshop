@@ -28,22 +28,22 @@
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="consent_pd" id="consent_pd" required>
                             <label class="form-check-label small" for="consent_pd">
-                                Я даю согласие на <a href="{% url 'privacy_policy' %}" target="_blank">обработку своих персональных данных</a> в соответствии с политикой конфиденциальности *
+                                Я даю согласие на <a href="{% url 'privacy_policy' %}" target="_blank">обработку своих персональных данных</a> *
                             </label>
                         </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="consent_third" id="consent_third" required>
                             <label class="form-check-label small" for="consent_third">
-                                Я даю согласие на <a href="{% url 'privacy_policy' %}" target="_blank">передачу своих персональных данных третьим лицам</a> (службам доставки, платёжным системам) *
+                                Я даю согласие на передачу персональных данных третьим лицам (службам доставки, платёжным системам) *
                             </label>
                         </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="consent_marketing" id="consent_marketing">
                             <label class="form-check-label small" for="consent_marketing">
-                                Я даю согласие на получение рекламной и информационной рассылки
+                                Я согласен получать рекламную и информационную рассылку
                             </label>
                         </div>
-                        <div class="small text-muted mt-1">Поля, отмеченные *, обязательны для заполнения</div>
+                        <div class="small text-muted">* — обязательные поля</div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">{% trans "Создать аккаунт" %}</button>
                 </form>
