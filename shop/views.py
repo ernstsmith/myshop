@@ -3,6 +3,7 @@ import json
 import hashlib
 import hmac
 import time
+from datetime import timezone as dt_timezone
 from decimal import Decimal
 from django.conf import settings
 from django.db import transaction
@@ -283,7 +284,7 @@ def verify_telegram_auth(request):
     telegram_id = data.get("id")
     if not telegram_id:
         return HttpResponseBadRequest("Missing telegram id")
-    auth_dt = timezone.datetime.fromtimestamp(auth_date, tz=timezone.utc)
+    auth_dt = timezone.datetime.fromtimestamp(auth_date, tz=dt_timezone.utc)
     telegram_user, _ = TelegramUser.objects.update_or_create(
         telegram_id=str(telegram_id),
         defaults={
@@ -330,7 +331,7 @@ def api_create_order(request):
             'order_id': order.id,
             'total': total,
             'message': 'Заказ создан'
-        })
+        }, status=201)
     except Exception as e:
         return JsonResponse({
             'status': 'error',

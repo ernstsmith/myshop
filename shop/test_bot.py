@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 from django.test import RequestFactory
 
 from shop import bot
+from shop.models import Product
 from shop.views import api_create_order
 
 
@@ -38,31 +39,30 @@ class OrderApiTests(TestCase):
         self.factory = RequestFactory()
 
     def test_create_order_via_api(self):
+        product = Product.objects.create(
+            title="Tea",
+            slug="tea",
+            price=10,
+        )
         request = self.factory.post(
             "/api/order/",
             data=json.dumps(
                 {
-                    "user_id": 42,
-                    "username": "tester",
-                    "product": "Tea",
-                    "quantity": 2,
+                    "cart": [
+                        {"id": product.id, "quantity": 2},
+                    ]
                 }
             ),
             content_type="application/json",
         )
 
-        with patch("shop.views.Order.objects.create", return_value=SimpleNamespace(id=101)) as create_mock:
-            response = api_create_order(request)
+        response = api_create_order(request)
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(response.content), {"status": "ok", "order_id": 101})
-        create_mock.assert_called_once_with(
-            user_id=42,
-            username="tester",
-            product="Tea",
-            quantity=2,
-            total_amount=0,
-        )
+        payload = json.loads(response.content)
+        self.assertEqual(payload["status"], "ok")
+        self.assertIn("order_id", payload)
+        self.assertEqual(payload["total"], 20.0)
 
 
 class BotHandlersTests(IsolatedAsyncioTestCase):
@@ -72,7 +72,10 @@ class BotHandlersTests(IsolatedAsyncioTestCase):
 
         await bot.start(update, context)
 
-        update.message.reply_text.assert_awaited_once_with("Добро пожаловать в магазин 👕")
+        update.message.reply_text.assert_awaited_once()
+        args, kwargs = update.message.reply_text.await_args
+        self.assertEqual(args[0], "Добро пожаловать в магазин 👕")
+        self.assertIn("reply_markup", kwargs)
 
     async def test_test_command_sends_message_to_admin_chat(self):
         update = _make_update()
@@ -103,7 +106,7 @@ class BotHandlersTests(IsolatedAsyncioTestCase):
     async def test_handle_miniapp_data_parses_payload_and_creates_order(self):
         update = _make_update()
         update.message.web_app_data = SimpleNamespace(
-            data='{"telegram_user_id":42,"telegram_username":"tester","product":"Tea","quantity":2}'
+            data='{"telegram_user_id":42,"telegram_username":"tester","items":[{"id":1,"title":"Tea","quantity":2}]}'
         )
         context = _make_context()
 
@@ -112,14 +115,19 @@ class BotHandlersTests(IsolatedAsyncioTestCase):
 
         post_order_mock.assert_called_once_with(
             "http://localhost:8000/api/order/",
-            {"user_id": 42, "username": "tester", "product": "Tea", "quantity": 2},
+            {
+                "items": [{"id": 1, "title": "Tea", "quantity": 2}],
+                "telegram_user_id": 42,
+                "username": "tester",
+                "init_data": "",
+            },
         )
         update.message.reply_text.assert_awaited_once_with("Заказ принят ✅")
 
     async def test_handle_miniapp_data_sends_admin_notification(self):
         update = _make_update()
         update.message.web_app_data = SimpleNamespace(
-            data='{"telegram_user_id":42,"telegram_username":"tester","product":"Tea","quantity":2}'
+            data='{"telegram_user_id":42,"telegram_username":"tester","items":[{"id":1,"title":"Tea","quantity":2}]}'
         )
         context = _make_context()
 
@@ -132,8 +140,8 @@ class BotHandlersTests(IsolatedAsyncioTestCase):
                 "🛒 Новый заказ\n\n"
                 "Пользователь: @tester\n"
                 "ID: 42\n\n"
-                "Товар: Tea\n"
-                "Количество: 2"
+                "Товары:\n"
+                "- Tea × 2"
             ),
         )
 
@@ -149,7 +157,7 @@ class BotHandlersTests(IsolatedAsyncioTestCase):
     async def test_handle_miniapp_data_handles_api_error(self):
         update = _make_update()
         update.message.web_app_data = SimpleNamespace(
-            data='{"telegram_user_id":42,"telegram_username":"tester","product":"Tea","quantity":2}'
+            data='{"telegram_user_id":42,"telegram_username":"tester","items":[{"id":1,"title":"Tea","quantity":2}]}'
         )
         context = _make_context()
 

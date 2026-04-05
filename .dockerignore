@@ -1,0 +1,16 @@
+.git
+.gitignore
+.env
+.env.example
+.venv
+.venv_lnx
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+ngrok-stable-linux-amd64.zip*
+*.log

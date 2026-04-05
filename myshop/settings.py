@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',  # ← Добавьте эту строку
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = "myshop.urls"
@@ -97,7 +100,7 @@ DATABASES = {
 if os.environ.get("DATABASE_URL"):
     DATABASES["default"] = dj_database_url.parse(os.environ.get("DATABASE_URL"))
 
-if not DEBUG and not os.environ.get("DATABASE_URL"):
+if not DEBUG and not os.environ.get("DATABASE_URL") and env_bool("REQUIRE_DATABASE_URL"):
     db_defaults = DATABASES["default"]
     missing_db_fields = [
         key for key, value in db_defaults.items()
@@ -134,9 +137,9 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_LOGIN_METHODS = {'email'}  # вместо ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']  # вместо ACCOUNT_EMAIL_REQUIRED и ACCOUNT_USERNAME_REQUIRED
+ACCOUNT_EMAIL_VERIFICATION = "optional"  # или "mandatory"
 LOGIN_REDIRECT_URL = "/profile/"
 LOGOUT_REDIRECT_URL = "/"
 
