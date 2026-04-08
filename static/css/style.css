@@ -100,7 +100,7 @@ main.container{
     position: relative;
     background:
         linear-gradient(120deg, rgba(0,0,0,0.70), rgba(0,0,0,0.25)),
-        url("/images/banner_001.jpg") center/cover no-repeat;
+        url("/static/images/banner_001.jpg") center/cover no-repeat;
     box-shadow: var(--shadow);
     border: 1px solid rgba(255,255,255,0.08);
 }
